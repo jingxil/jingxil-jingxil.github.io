@@ -1,0 +1,332 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>Gated Recurrent Neural Networks | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="This post is to introduce the gated recurrent neural networks.">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/06/26/gated-recurrent-neural-networks/" title="Gated Recurrent Neural Networks" itemprop="url">Gated Recurrent Neural Networks</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-06-26T18:34:02.000Z" itemprop="datePublished">2017-06-26</time>
+    Updated:<time datetime="2017-06-27T02:59:21.537Z" itemprop="dateModified">2017-06-27</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Recurrent-Neural-Network"><span class="toc-number">1.</span> <span class="toc-text">Recurrent Neural Network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Problems"><span class="toc-number">2.</span> <span class="toc-text">Problems</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vanishing-gradient-problem"><span class="toc-number">2.1.</span> <span class="toc-text">Vanishing gradient problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dependency-Problem"><span class="toc-number">2.2.</span> <span class="toc-text">Dependency Problem</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gated-Units"><span class="toc-number">3.</span> <span class="toc-text">Gated Units</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Long-Short-Term-Memory"><span class="toc-number">3.1.</span> <span class="toc-text">Long Short Term Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gated-Recurrent-Unit"><span class="toc-number">3.2.</span> <span class="toc-text">Gated Recurrent Unit</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comparison"><span class="toc-number">4.</span> <span class="toc-text">Comparison</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>This post is to introduce the gated recurrent neural networks.<br><a id="more"></a></p>
+<h2 id="Recurrent-Neural-Network"><a href="#Recurrent-Neural-Network" class="headerlink" title="Recurrent Neural Network"></a>Recurrent Neural Network</h2><p>The Recurrent Neural Network (RNN) is quite handy to deal with sequences. In general, RNN cell takes outputs of RNN cells at previous time step and beneath layer as input to compute current state. Formally naive RNN is defined as<br>$$\vec{h}^{l}_{t}= tanh(\vec{W}\vec{h}^{l-1}_{t} + \vec{U}\vec{h}^{l}_{t-1})$$<br><img src="http://karpathy.github.io/assets/rnn/diags.jpeg" alt="Image from Andrej Karpathy&#39;s post[1]"></p>
+<p>This image above is taken from Andrej Karpathy’s post [1]. It demonstrates various usages of RNNs. </p>
+<h2 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h2><h3 id="Vanishing-gradient-problem"><a href="#Vanishing-gradient-problem" class="headerlink" title="Vanishing gradient problem"></a>Vanishing gradient problem</h3><p>During training, gradients are easy to ‘vanish’ or ‘explode’ because the RNN could be unfolded in to a very deep feedforward network [2].</p>
+<h3 id="Dependency-Problem"><a href="#Dependency-Problem" class="headerlink" title="Dependency Problem"></a>Dependency Problem</h3><p>In the navie settings, all previous inputs have the same impacts on current state. However, sometimes, only parts of previous inputs matter to current output [3]. For example, if we are trying to predict the last word in “The color of cloud is white, the color of sea is blue.”, the first half sentence is useless.   </p>
+<h2 id="Gated-Units"><a href="#Gated-Units" class="headerlink" title="Gated Units"></a>Gated Units</h2><p>Gated units like Long Short Term Memory proposed by  S. Hochreiter et al. [4] and Gated Recurrent Unit come up with by K. Cho et al. [5] are proposed to solve those problems. </p>
+<h3 id="Long-Short-Term-Memory"><a href="#Long-Short-Term-Memory" class="headerlink" title="Long Short Term Memory"></a>Long Short Term Memory</h3><p><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png" alt="Image from Colah&#39;s post[3]"></p>
+<p>This image above is taken from colah’s post [3].</p>
+<p>In LSTM structure, there are Cell state, Forget gate, Input gate and Ouput gate.<br>$$<br>\vec{\tilde{C}}^l_t=tanh(\vec{W}^l_C\vec{h}^{l-1}_{t} + \vec{U}^l_C\vec{h}^{l}_{t-1} + \vec{b}^l_C )<br>$$</p>
+<p>$$<br>\vec{f}^l_t=\sigma(\vec{W}^l_f\vec{h}^{l-1}_{t} + \vec{U}^l_f\vec{h}^{l}_{t-1} + \vec{b}^l_f  )<br>$$</p>
+<p>$$<br>\vec{i}^l_t=\sigma(\vec{W}^l_i\vec{h}^{l-1}_{t} + \vec{U}^l_i\vec{h}^{l}_{t-1} + \vec{b}^l_i  )<br>$$</p>
+<p>$$<br>\vec{C}^l_t=\vec{f}^l_t \oplus \vec{C}^l_{t-1} + \vec{i}^l_t \oplus \vec{\tilde{C}}^l_t<br>$$</p>
+<p>$$<br>\vec{o}^l_t=\sigma(\vec{W}^l_o\vec{h}^{l-1}_{t} + \vec{U}^l_o\vec{h}^{l}_{t-1} + \vec{b}^l_o  )<br>$$</p>
+<p>$$<br>\vec{h}^l_t=\vec{o}^l_t  \oplus tanh(\vec{C}^l_t)<br>$$</p>
+<h3 id="Gated-Recurrent-Unit"><a href="#Gated-Recurrent-Unit" class="headerlink" title="Gated Recurrent Unit"></a>Gated Recurrent Unit</h3><p><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png" alt="Image from Colah&#39;s post[3]"></p>
+<p>This image above is taken from colah’s post [3]. The GRU functions similarly as the LSTM while the GRU owns simpler structure. </p>
+<h2 id="Comparison"><a href="#Comparison" class="headerlink" title="Comparison"></a>Comparison</h2><p> J. Chung et al. [6] conducted a series of experiments on different datasets to compare LSTM-RNN and GRU-RNN. The results show both of them perform better than naive RNN and neither of  LSTM-RNN and GRU-RNN is superior to the other. </p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Andrej Karpathy, The Unreasonable Effectiveness of Recurrent Neural Networks, <a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/" target="_blank" rel="external">http://karpathy.github.io/2015/05/21/rnn-effectiveness/</a><br>[2] Wikipedia, Vanishing gradient problem, <a href="https://en.wikipedia.org/wiki/Vanishing_gradient_problem" target="_blank" rel="external">https://en.wikipedia.org/wiki/Vanishing_gradient_problem</a><br>[3] Colah, Understanding LSTM Networks, <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="external">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a><br>[4] S. Hochreiter et al. Long short-term memory<br>[5] K. Cho et al. On the properties of neural machine translation: Encoder-decoder approaches<br>[6] J. Chung et al. Empirical evaluation of gated recurrent neural networks on sequence modeling</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/notes/">notes</a><a href="/tags/RNN/">RNN</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/06/26/gated-recurrent-neural-networks/" data-title="Gated Recurrent Neural Networks | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/06/25/cheatsheet/"  title="Markdown Cheatsheet">
+ <strong>NEXT:</strong><br/> 
+ <span>Markdown Cheatsheet
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Recurrent-Neural-Network"><span class="toc-number">1.</span> <span class="toc-text">Recurrent Neural Network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Problems"><span class="toc-number">2.</span> <span class="toc-text">Problems</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vanishing-gradient-problem"><span class="toc-number">2.1.</span> <span class="toc-text">Vanishing gradient problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dependency-Problem"><span class="toc-number">2.2.</span> <span class="toc-text">Dependency Problem</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gated-Units"><span class="toc-number">3.</span> <span class="toc-text">Gated Units</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Long-Short-Term-Memory"><span class="toc-number">3.1.</span> <span class="toc-text">Long Short Term Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gated-Recurrent-Unit"><span class="toc-number">3.2.</span> <span class="toc-text">Gated Recurrent Unit</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comparison"><span class="toc-number">4.</span> <span class="toc-text">Comparison</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+  </body>
+</html>
