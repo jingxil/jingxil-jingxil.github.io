@@ -43,7 +43,7 @@
 					
 						<li><a href="/">Home</a></li>
 					
-						<li><a href="/">About</a></li>
+						<li><a href="/about">About</a></li>
 					
 					<li>
 					
@@ -72,8 +72,8 @@
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-06-26T18:34:02.000Z" itemprop="datePublished">2017-06-26</time>
-    Updated:<time datetime="2017-06-27T03:13:51.133Z" itemprop="dateModified">2017-06-27</time>
+    <time datetime="2017-06-26T18:34:02.000Z" itemprop="datePublished">2017-26-06</time>
+    Updated:<time datetime="2017-06-28T01:37:26.959Z" itemprop="dateModified">2017-28-06</time>
     
   </p>
 </header>
@@ -86,13 +86,13 @@
 		</div>
 		
 		<p>This post is to introduce the gated recurrent neural networks.<br><a id="more"></a></p>
-<h2 id="Recurrent-Neural-Network"><a href="#Recurrent-Neural-Network" class="headerlink" title="Recurrent Neural Network"></a>Recurrent Neural Network</h2><p>The Recurrent Neural Network (RNN) is quite handy to deal with sequences. In general, RNN cell takes outputs of RNN cells at previous time step and beneath layer as input to compute current state. Formally naive RNN is defined as<br>$$\vec{h}^{l}_{t}= tanh(\vec{W}\vec{h}^{l-1}_{t} + \vec{U}\vec{h}^{l}_{t-1})$$<br><img src="http://karpathy.github.io/assets/rnn/diags.jpeg" alt="Image from Andrej Karpathy&#39;s post[1]"></p>
-<p>This image above is taken from Andrej Karpathy’s post [1]. It demonstrates various usages of RNNs. </p>
+<h2 id="Recurrent-Neural-Network"><a href="#Recurrent-Neural-Network" class="headerlink" title="Recurrent Neural Network"></a>Recurrent Neural Network</h2><p>The Recurrent Neural Network (RNN) is quite handy to deal with sequences. In general, RNN cell takes outputs of RNN cells at previous time step and beneath layer as input to compute current state. Formally naive RNN is defined as<br>$$<br>\vec{h}^{l}_{t}= tanh(\vec{W}\vec{h}^{l-1}_{t} + \vec{U}\vec{h}^{l}_{t-1})<br>$$<br><img src="http://karpathy.github.io/assets/rnn/diags.jpeg" alt="Image from Andrej Karpathy&#39;s post[1]"></p>
+<p>The image above is taken from Andrej Karpathy’s post [1]. It demonstrates various usages of RNNs. </p>
 <h2 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h2><h3 id="Vanishing-Gradient-Problem"><a href="#Vanishing-Gradient-Problem" class="headerlink" title="Vanishing Gradient Problem"></a>Vanishing Gradient Problem</h3><p>During training, gradients are easy to ‘vanish’ or ‘explode’ because the RNN could be unfolded in to a very deep feedforward network [2].</p>
 <h3 id="Dependency-Problem"><a href="#Dependency-Problem" class="headerlink" title="Dependency Problem"></a>Dependency Problem</h3><p>In the navie settings, all previous inputs have the same impacts on current state. However, sometimes, only parts of previous inputs matter to current output [3]. For example, if we are trying to predict the last word in “The color of cloud is white, the color of sea is blue.”, the first half sentence is useless.   </p>
 <h2 id="Gated-Units"><a href="#Gated-Units" class="headerlink" title="Gated Units"></a>Gated Units</h2><p>Gated units like Long Short Term Memory proposed by  S. Hochreiter et al. [4] and Gated Recurrent Unit come up with by K. Cho et al. [5] are proposed to solve those problems. </p>
 <h3 id="Long-Short-Term-Memory"><a href="#Long-Short-Term-Memory" class="headerlink" title="Long Short Term Memory"></a>Long Short Term Memory</h3><p><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png" alt="Image from Colah&#39;s post[3]"></p>
-<p>This image above is taken from colah’s post [3].</p>
+<p>The image above is taken from colah’s post [3].</p>
 <p>In LSTM structure, there are Cell state, Forget gate, Input gate and Ouput gate.<br>$$<br>\vec{\tilde{C}}^l_t=tanh(\vec{W}^l_C\vec{h}^{l-1}_{t} + \vec{U}^l_C\vec{h}^{l}_{t-1} + \vec{b}^l_C )<br>$$</p>
 <p>$$<br>\vec{f}^l_t=\sigma(\vec{W}^l_f\vec{h}^{l-1}_{t} + \vec{U}^l_f\vec{h}^{l}_{t-1} + \vec{b}^l_f  )<br>$$</p>
 <p>$$<br>\vec{i}^l_t=\sigma(\vec{W}^l_i\vec{h}^{l-1}_{t} + \vec{U}^l_i\vec{h}^{l}_{t-1} + \vec{b}^l_i  )<br>$$</p>
@@ -100,7 +100,7 @@
 <p>$$<br>\vec{o}^l_t=\sigma(\vec{W}^l_o\vec{h}^{l-1}_{t} + \vec{U}^l_o\vec{h}^{l}_{t-1} + \vec{b}^l_o  )<br>$$</p>
 <p>$$<br>\vec{h}^l_t=\vec{o}^l_t  \oplus tanh(\vec{C}^l_t)<br>$$</p>
 <h3 id="Gated-Recurrent-Unit"><a href="#Gated-Recurrent-Unit" class="headerlink" title="Gated Recurrent Unit"></a>Gated Recurrent Unit</h3><p><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png" alt="Image from Colah&#39;s post[3]"></p>
-<p>This image above is taken from colah’s post [3]. The GRU functions similarly as the LSTM while the GRU owns simpler structure. </p>
+<p>The image above is taken from colah’s post [3]. The GRU functions similarly as the LSTM while the GRU owns simpler structure. </p>
 <h2 id="Comparison"><a href="#Comparison" class="headerlink" title="Comparison"></a>Comparison</h2><p> J. Chung et al. [6] conducted a series of experiments on different datasets to compare LSTM-RNN and GRU-RNN. The results show both of them perform better than naive RNN and neither of  LSTM-RNN and GRU-RNN is superior to the other. </p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Andrej Karpathy, The Unreasonable Effectiveness of Recurrent Neural Networks, <a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/" target="_blank" rel="external">http://karpathy.github.io/2015/05/21/rnn-effectiveness/</a><br>[2] Wikipedia, Vanishing gradient problem, <a href="https://en.wikipedia.org/wiki/Vanishing_gradient_problem" target="_blank" rel="external">https://en.wikipedia.org/wiki/Vanishing_gradient_problem</a><br>[3] Colah, Understanding LSTM Networks, <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="external">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a><br>[4] S. Hochreiter et al. Long short-term memory<br>[5] K. Cho et al. On the properties of neural machine translation: Encoder-decoder approaches<br>[6] J. Chung et al. Empirical evaluation of gated recurrent neural networks on sequence modeling</p>
   
@@ -126,6 +126,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2017/07/03/penalize-way-too-common-reponses/" title="Penalize Way Too Common Reponses">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Penalize Way Too Common Reponses</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/2017/06/25/cheatsheet/"  title="Markdown Cheatsheet">
@@ -157,9 +165,11 @@
 	<p class="asidetitle">Tags</p>
 		<ul class="clearfix">
 		
+			<li><a href="/tags/NLP/" title="NLP">NLP<sup>1</sup></a></li>
+		
 			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
 		
-			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+			<li><a href="/tags/notes/" title="notes">notes<sup>2</sup></a></li>
 		
 		</ul>
 </div>
@@ -168,7 +178,7 @@
   
   <div class="archiveslist">
     <p class="asidetitle"><a href="/archives">Archives</a></p>
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
