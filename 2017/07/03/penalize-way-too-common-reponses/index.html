@@ -73,7 +73,7 @@
     </p>
   <p class="article-time">
     <time datetime="2017-07-03T05:50:14.000Z" itemprop="datePublished">2017-03-07</time>
-    Updated:<time datetime="2017-07-04T06:49:54.602Z" itemprop="dateModified">2017-04-07</time>
+    Updated:<time datetime="2017-07-04T06:58:00.937Z" itemprop="dateModified">2017-04-07</time>
     
   </p>
 </header>
@@ -150,7 +150,7 @@
 </li>
 </ul>
 <h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>Li et al. believe on the one hand, responses are dependent on messages, on the other hand, the reverse holds.  MMI is proposed to capture this intuition.</p>
-<h2 id="Pointwise-Mutual-Information-PMI"><a href="#Pointwise-Mutual-Information-PMI" class="headerlink" title="Pointwise Mutual Information (PMI)"></a>Pointwise Mutual Information (PMI)</h2><p>The PMI is to quantify the discrepancy between the probability of coincidence of a pair of outcomes given their joint distribution and their individual distributions, assuming independence [2]. Mathematically<br>$$<br>pmi(x,y) = \log\frac{p(x,y)}{p(x)p(y)}  = \log\frac{p(x|y)}{p(y)}<br>$$<br>if X and Y are independent, pmi(x,y) should be 0. On the condition that p(y) is fixed, pmi(x,y) increases as p(x|y) goes up. </p>
+<h2 id="Pointwise-Mutual-Information-PMI"><a href="#Pointwise-Mutual-Information-PMI" class="headerlink" title="Pointwise Mutual Information (PMI)"></a>Pointwise Mutual Information (PMI)</h2><p>The PMI is to quantify the discrepancy between the probability of coincidence of a pair of outcomes given their joint distribution and their individual distributions, assuming independence [2]. Mathematically<br>$$<br>pmi(x,y) = \log\frac{p(x,y)}{p(x)p(y)}  = \log\frac{p(x|y)}{p(x)}<br>$$<br>if X and Y are independent, pmi(x,y) should be 0. On the condition that p(y) is fixed, pmi(x,y) increases as p(x|y) goes up. </p>
 <h2 id="Mutual-Information-MI"><a href="#Mutual-Information-MI" class="headerlink" title="Mutual Information (MI)"></a>Mutual Information (MI)</h2><p>The mutual information (MI) of two random variables is a measure of the mutual dependence between the two variables[3].  Mathematically<br>$$<br>mi(X,Y) = \sum_{X}\sum_{Y} p(x,y) \log \frac{p(x,y)}{p(x)p(y)}<br>$$<br>where mi(X,Y) is nonnegative and symmetric. </p>
 <h2 id="MMI-in-Seq2Seq"><a href="#MMI-in-Seq2Seq" class="headerlink" title="MMI in Seq2Seq"></a>MMI in Seq2Seq</h2><p>Let S denote a message sequence as<br>$$<br>S={s_1,s2,…,s_N}<br>$$<br>where N is the number of words in sequence. Similarly, T denotes a response sequence as<br>$$<br>T={t_1,t_2,…,t_M,EOS}<br>$$<br>The standard objective function in seq2seq model is the log-likelihood function which yeilds the too-generic problem at test time<br>$$<br>\hat{T} = \mathop{\arg\max}_T{\log p(T|S)}<br>$$<br>The MMI is defined as<br>$$<br>\log\frac{p(S,T)}{p(S)p(T)} \ \  , \ could \ also \  be  \ \log p(T|S) - \lambda\log p(T)<br>$$<br> which penalizes T which has higher prior probability. According to Bayes’ theorem, MMI can be rewrited as<br>$$<br>\hat{T} = \mathop{\arg\max}_T{(1-\lambda)\log p(T|S) + \lambda\log p(S|T)}<br>$$<br>which supports the hypothesis that T and S are dependent on each other. </p>
 <h2 id="Obstacles"><a href="#Obstacles" class="headerlink" title="Obstacles"></a>Obstacles</h2><p>MMI, no matter in which form, is difficult to adapt directly to decode since the former form leads to ungrammatical responses and the latter form makes decoding intractable.</p>
