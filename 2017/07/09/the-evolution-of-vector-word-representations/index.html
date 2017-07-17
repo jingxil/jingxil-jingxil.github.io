@@ -1,0 +1,364 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>The Evolution of Vector Word Representations | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="The Vector Word Representation is to represent a word with a vector.">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/07/09/the-evolution-of-vector-word-representations/" title="The Evolution of Vector Word Representations" itemprop="url">The Evolution of Vector Word Representations</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-07-09T23:06:04.000Z" itemprop="datePublished">2017-09-07</time>
+    Updated:<time datetime="2017-07-17T07:10:16.087Z" itemprop="dateModified">2017-17-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Simplest-Way-to-Build-Word-Vectors"><span class="toc-number">1.</span> <span class="toc-text">The Simplest Way to Build Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ideal-Word-Vectors"><span class="toc-number">2.</span> <span class="toc-text">Ideal Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Two-Mainstreams"><span class="toc-number">3.</span> <span class="toc-text">Two Mainstreams</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Evolution"><span class="toc-number">4.</span> <span class="toc-text">The Evolution</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1988-Latent-Semantic-Analysis"><span class="toc-number">4.1.</span> <span class="toc-text">1988 - Latent Semantic Analysis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2003-Neural-Probabilistic-Language-Model"><span class="toc-number">4.2.</span> <span class="toc-text">2003 - Neural Probabilistic Language Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Continuous-Bag-of-Words"><span class="toc-number">4.3.</span> <span class="toc-text">2013 - Continuous Bag of Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Basic-Skip-gram"><span class="toc-number">4.4.</span> <span class="toc-text">2013 - Basic Skip-gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Skip-gram-with-Negative-sampling"><span class="toc-number">4.5.</span> <span class="toc-text">2013 - Skip-gram with Negative-sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2014-Which-way-to-go-count-or-predict"><span class="toc-number">4.6.</span> <span class="toc-text">2014 - Which way to go: count or predict?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2015-Global-Vectors-for-Word-Representation"><span class="toc-number">4.7.</span> <span class="toc-text">2015 - Global Vectors for Word Representation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2016-Submatrix-wise-Vector-Embedding-Learner"><span class="toc-number">4.8.</span> <span class="toc-text">2016 - Submatrix-wise Vector Embedding Learner</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conclusion"><span class="toc-number">5.</span> <span class="toc-text">Conclusion</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>The Vector Word Representation is to represent a word with a vector.<a id="more"></a> Joseph Turian et al. in their work [1] proved NLP systems achieved higher accuracy by using word representations as extra word features.</p>
+<h2 id="The-Simplest-Way-to-Build-Word-Vectors"><a href="#The-Simplest-Way-to-Build-Word-Vectors" class="headerlink" title="The Simplest Way to Build Word Vectors"></a>The Simplest Way to Build Word Vectors</h2><p>The easiest approach to build word vectors is via one-hot encoding.  It uses vectors where only one cell contains 1 and others cells contain 0 to represent and distinguish each word in the vocabulary. Let’s say we have a corpus</p>
+<ul>
+<li>I like swimming.</li>
+<li>I like running.</li>
+<li>I love hexo.</li>
+</ul>
+<p>Since the size of vocabulary is 6, we can use [1,0,0,0,0,0] and [0,1,0,0,0,0] to represent ‘swimming’ and ‘running’ respectively. But in this way, two problems exist: 1) in reality the vocabulary can be hundreds and thousands, such long length word vectors are doomed by “Curse of dimensionality”. 2) words lose part of properties after one-hot encoding. For instance, ‘swimming’ and ‘running’ are relevant to each other semantically and syntactically, but [1,0,0,0,0,0] and  [0,1,0,0,0,0] are orthogonal.</p>
+<h2 id="Ideal-Word-Vectors"><a href="#Ideal-Word-Vectors" class="headerlink" title="Ideal Word Vectors"></a>Ideal Word Vectors</h2><p>After the analysis above, we can conclude two properties the ideal word representation should own:</p>
+<ol>
+<li>relatively low dimensional</li>
+<li>preserve semantic and syntactic meanings </li>
+</ol>
+<h2 id="Two-Mainstreams"><a href="#Two-Mainstreams" class="headerlink" title="Two Mainstreams"></a>Two Mainstreams</h2><p>Based on Firth’s hypothesis “a word is characterized by the company it keeps”, there are two main approaches to produce word vectors. One is “counting-based”, the other is “predicting-based”, according to Marco Baroni et al. [2] .  The “counting-based” approach is to factorize a matrix such as Latent Semantic Analysis (LSA) and Latent Dirichlet Allocation(LDA). The  “predicting-based” approach is to learn word vectors by maximizing the probability of context words by giving the current word. CBow and Skip-gram both belong to this type. </p>
+<h2 id="The-Evolution"><a href="#The-Evolution" class="headerlink" title="The Evolution"></a>The Evolution</h2><p>From here I am going to introduce the evolution of vector word representations. Most attentions will be paid to predicting-based models.</p>
+<h3 id="1988-Latent-Semantic-Analysis"><a href="#1988-Latent-Semantic-Analysis" class="headerlink" title="1988 - Latent Semantic Analysis"></a>1988 - Latent Semantic Analysis</h3><p>The seminal paper on LSA technique is published in 1988 [3]. Using LSA on producing word vectors can be described as: First construct word-word matrix M to identify the co-occurrence of each word pairs in a size fixed context window. each row represents a key word and each column represents a context word.  Matrix cell Mij means the times that context word j appears in key word i. After factorizing co-occurrence matrix M, we obtain small matrix rows of which can be used as word vectors.</p>
+<h3 id="2003-Neural-Probabilistic-Language-Model"><a href="#2003-Neural-Probabilistic-Language-Model" class="headerlink" title="2003 - Neural Probabilistic Language Model"></a>2003 - Neural Probabilistic Language Model</h3><p>Marco Baroni et al. conducted systematic evaluations on context-counting and context-predicting semantic vectors. It turned out there are enough reasons to switch to the predict model architecture.</p>
+<p>Bengio et al.[5] proposed to make use of Neural Probabilistic Language Model (AKA. NNLM) to learn word vectors. The idea is to train a model to maximize the probability of next word by feeding previous N words as well as learn word vectors. Intuitively, next word being predicted correctly could mean that the previous N words have “memorized” the next word. In other words, word vectors preserved the meanings. </p>
+<h3 id="2013-Continuous-Bag-of-Words"><a href="#2013-Continuous-Bag-of-Words" class="headerlink" title="2013 - Continuous Bag of Words"></a>2013 - Continuous Bag of Words</h3><p>Tomas Mikolov et al. [6] came up with a model similar to the model in [5]. But 1) the hidden layer is removed 2) share the entire projection layer 3) use both sides of words as input. This model is called Continuous Bag of Word (CBoW).</p>
+<h3 id="2013-Basic-Skip-gram"><a href="#2013-Basic-Skip-gram" class="headerlink" title="2013 - Basic Skip-gram"></a>2013 - Basic Skip-gram</h3><p>Another model called Skip-gram was also mentioned in [6]. It almost the same as CBoW except it reverses the input and output. In  Skip-gram, the key word is fed to predict the context word.   </p>
+<p>Note that in Both CBoW and Skip-gram models, The only two trainable matrices: the projection matrix and the words look-up matrix, have the same shape. We can regard the  projection matrix as a words look-up matrix.  Hence during learning process, two word vectors are learned for each word. One is context word vector from projection matrix, the other is key word vector from words look-up matrix.</p>
+<h3 id="2013-Skip-gram-with-Negative-sampling"><a href="#2013-Skip-gram-with-Negative-sampling" class="headerlink" title="2013 - Skip-gram with Negative-sampling"></a>2013 - Skip-gram with Negative-sampling</h3><p>Noise Contrastive Estimation (NCE) and Negative-sampling  are introduced nicely in [12]. Negative-sampling is just a substitute for softmax. The reason I put Skip-gram with Negative-sampling (SGNS) as a model here is that SGNS will be used in following part.</p>
+<h3 id="2014-Which-way-to-go-count-or-predict"><a href="#2014-Which-way-to-go-count-or-predict" class="headerlink" title="2014 - Which way to go: count or predict?"></a>2014 - Which way to go: count or predict?</h3><p>After Mikolov’s work is made public, people were impressed by the performances of predicting based models. But in 2014, Omer Levy et al. [8] prove that SGNS is implicitly factorizing a matrix.  And the matrix could take various forms even as the same as the co-occurrence matrix in LSA. That is counting-based approaches are connected with predicting-based approaches. Omer Levy et al. proved that </p>
+<p>$$<br>M_{ij}^{SGNS} = \vec{c}_{j} \cdot \vec{w}_{i} = PMI(c_j,w_i)-\log k<br>$$</p>
+<p>where c w and k denote context word, key word and the sampling size respectively. PMI is Pointwise mutual information [9].  After expanding the PMI function, we obtain<br>$$<br> \vec{c}_{j} \cdot \vec{w}_{i} = \log X_{ij} -  \log X_{*j} -  \log X_{i*}  + \log |D| -\log k<br>$$<br>where Xij denotes the times that context word j appears in key word i. The right part is the word vectors to learn and the left part can be computed. Using MSE, We can learn word vectors by minimizing the loss function below:</p>
+<p>$$<br>L = \sum_{i}^{D}\sum_{j}^{i-m&lt;j&lt;i+m}(  \log X_{ij} -  \log X_{*j} -  \log X_{i*}  + \log |D| -\log k - \vec{c}_{j} \cdot \vec{w}_{i})^2<br>$$</p>
+<h3 id="2015-Global-Vectors-for-Word-Representation"><a href="#2015-Global-Vectors-for-Word-Representation" class="headerlink" title="2015 - Global Vectors for Word Representation"></a>2015 - Global Vectors for Word Representation</h3><p>Global Vectors for Word Representation (GloVe) is proposed by Jeffrey Pennington et al [10] . Let’s jump to the loss function to see what the differences are between GloVe and SGNS.<br>$$<br>J^{GloVe}=\sum^{V}_{i,j} f(X_{ij})((\vec{c}_{j} \cdot \vec{w}_{i}+wb_i+cb_j-\log X_{ij})^2<br>$$<br>where wbi and cbj represent the biases of key word i and context word j. f is the weight function<br>$$<br>f(x) = \begin{cases}<br>(x/x_{max})^{\alpha} &amp;x&lt;x_{max}\cr 1 &amp;otherwise\end{cases}<br>$$<br>We rewrite the loss function of SGNS in the form of sum over vocabulary:<br>$$<br>L^{SGNS} = \sum_{i,j}^{V}(X_{ij})(  \log X_{ij} -  \log X_{*j} -  \log X_{i*}  + \log |D| -\log k - \vec{c}_{j} \cdot \vec{w}_{i})^2<br>$$<br>It is easy to notice that the main difference lies in the weight function. In SGNS, the weight function is just the times that context word j appears in key word i instead a complicated one. The advantage of GloVe’s weight function is to make sure that frequent co-occurrences are not overweighted. Note GloVe uses only observed co-occurrences.</p>
+<h3 id="2016-Submatrix-wise-Vector-Embedding-Learner"><a href="#2016-Submatrix-wise-Vector-Embedding-Learner" class="headerlink" title="2016 - Submatrix-wise Vector Embedding Learner"></a>2016 - Submatrix-wise Vector Embedding Learner</h3><p>Submatrix-wise Vector Embedding Learner (Swiwel) is proposed by Noam Shazeer et al [11]. The contributions of their work are 1) taked unobserved co-occurrences into consideration 2) proposed a way to compute word vectors in parallel. Here we only introduce Swiwel’s loss function. When Xij&gt;0, it is like the function of SGNS:<br>$$<br>\frac{1}{2}f(X_{ij})(\vec{c}_{j} \cdot \vec{w}_{i} - PMI(c_j,w_i))^2 \ \ \ (X_{ij}&gt;0)<br>$$<br>When Xij=0, the loss function is<br>$$<br>\log[1+\exp(\vec{c}_{j} \cdot \vec{w}_{i} - PMI^{*}(c_j,w_i))] \ \ \ (X_{ij}=0)<br>$$<br>where PMI* is smoothed PMI. It is worth to mention how the loss function works. Suppose there is a corpus containing 200 records. The x and y occur 50 times. The m,n both occur once. The x and y co-occur once but the m and n  did not co-occur.  Then PMI(x,y) is about -1.09 and PMI(m,n) is -inf.  This result is not what we want. Because we have the confidence to say x,y are not relevant but it hard to decide whether n and m are related because this corpus covers too few records of m and n. Hence we hope  PMI(m,n) &gt; PMI(x,y). After using smoothed PMI, PMI*(m,n)&gt;PMI(x,y). </p>
+<p>When we estimate PMI*, we never want a overestimate but can accept an underestimate. Therefore log[1+exp()] is used to achieve the goal.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>After reviewing the evolution of vector word representations, we know counting-based approaches and predicting-based approaches are both trying to factorize a matrix. They are not completely different approaches.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Joseph Turian et al. Word representations: A simple and general method for semi-supervised learning, 2010<br>[2] Marco Baroni et al. Dont count, predict! a systematic comparison of context- counting vs. context-predicting semantic vectors, 2014<br>[3] Wikipedia, <a href="https://en.wikipedia.org/wiki/Latent_semantic_analysis" target="_blank" rel="external">Latent semantic analysis</a><br>[4] Wikipedia,  <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank" rel="external">singular value decomposition</a><br>[5] Yoshua Bengio et al. A Neural Probabilistic Language Model, 2003<br>[6] Tomas Mikolov et al. Efficient Estimation of Word Representations in Vector Space, 2013<br>[7] Tomas Mikolov et al. Distributed Representations of Words and Phrases and their Compositionality, 2013<br>[8] Omer Levy et al. Neural word embedding as implicit matrix factorization， 2014<br>[9] Wikipedia, <a href="https://en.wikipedia.org/wiki/Pointwise_mutual_information" target="_blank" rel="external">Pointwise mutual information</a><br>[10] Jeffrey Pennington et al. GloVe: Global Vectors for Word Representation,2014<br>[11] Noam Shazeer et al. Swivel: Improving Embeddings by Noticing What’s Missing, 2016<br>[12] Sebastian Ruder, <a href="https://twitter.com/intent/tweet?text=On%20word%20embeddings%20-%20Part%202%3A%20Approximating%20the%20Softmax%20%C2%BB&amp;hashtags=deep%20learning,word%20embeddings,softmax&amp;url=http://ruder.io/word-embeddings-softmax/" target="_blank" rel="external">On word embeddings - Part 2: Approximating the Softmax</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/notes/">notes</a><a href="/tags/word-embeddings/">word embeddings</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/07/09/the-evolution-of-vector-word-representations/" data-title="The Evolution of Vector Word Representations | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/07/09/learning-phrase-representations-using-RNN/" title="Learning Phrase Representations Using RNN">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Learning Phrase Representations Using RNN</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/07/03/penalize-way-too-common-reponses/"  title="Penalize Way Too Common Reponses">
+ <strong>NEXT:</strong><br/> 
+ <span>Penalize Way Too Common Reponses
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Simplest-Way-to-Build-Word-Vectors"><span class="toc-number">1.</span> <span class="toc-text">The Simplest Way to Build Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ideal-Word-Vectors"><span class="toc-number">2.</span> <span class="toc-text">Ideal Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Two-Mainstreams"><span class="toc-number">3.</span> <span class="toc-text">Two Mainstreams</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Evolution"><span class="toc-number">4.</span> <span class="toc-text">The Evolution</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1988-Latent-Semantic-Analysis"><span class="toc-number">4.1.</span> <span class="toc-text">1988 - Latent Semantic Analysis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2003-Neural-Probabilistic-Language-Model"><span class="toc-number">4.2.</span> <span class="toc-text">2003 - Neural Probabilistic Language Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Continuous-Bag-of-Words"><span class="toc-number">4.3.</span> <span class="toc-text">2013 - Continuous Bag of Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Basic-Skip-gram"><span class="toc-number">4.4.</span> <span class="toc-text">2013 - Basic Skip-gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2013-Skip-gram-with-Negative-sampling"><span class="toc-number">4.5.</span> <span class="toc-text">2013 - Skip-gram with Negative-sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2014-Which-way-to-go-count-or-predict"><span class="toc-number">4.6.</span> <span class="toc-text">2014 - Which way to go: count or predict?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2015-Global-Vectors-for-Word-Representation"><span class="toc-number">4.7.</span> <span class="toc-text">2015 - Global Vectors for Word Representation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2016-Submatrix-wise-Vector-Embedding-Learner"><span class="toc-number">4.8.</span> <span class="toc-text">2016 - Submatrix-wise Vector Embedding Learner</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conclusion"><span class="toc-number">5.</span> <span class="toc-text">Conclusion</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Seq2Seq/" title="Seq2Seq">Seq2Seq<sup>1</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>3</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>1</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>3</sup></a></li>
+		
+			<li><a href="/tags/weekly/" title="weekly">weekly<sup>1</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+  </body>
+</html>
+

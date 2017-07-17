@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Markdown Cheatsheet | CN Yah</title>
+    <title>Learning Phrase Representations Using RNN | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="Markdown Cheatsheet to look up on.">
+    <meta name="description" content="This post is a review of the work [1] of  Kyunghyun Cho et al.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/06/25/cheatsheet/" title="Markdown Cheatsheet" itemprop="url">Markdown Cheatsheet</a>
+      <a href="/2017/07/09/learning-phrase-representations-using-RNN/" title="Learning Phrase Representations Using RNN" itemprop="url">Learning Phrase Representations Using RNN</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-06-25T17:06:59.000Z" itemprop="datePublished">2017-25-06</time>
-    Updated:<time datetime="2017-07-10T01:00:38.368Z" itemprop="dateModified">2017-10-07</time>
+    <time datetime="2017-07-09T23:06:04.000Z" itemprop="datePublished">2017-09-07</time>
+    Updated:<time datetime="2017-07-17T07:09:23.411Z" itemprop="dateModified">2017-17-07</time>
     
   </p>
 </header>
@@ -82,64 +82,50 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Model"><span class="toc-number">2.</span> <span class="toc-text">The Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Enhance-Phrase-based-Translation-Model"><span class="toc-number">3.</span> <span class="toc-text">Enhance Phrase-based Translation Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phrase-Representations"><span class="toc-number">4.</span> <span class="toc-text">Phrase Representations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Notes"><span class="toc-number">5.</span> <span class="toc-text">Notes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>Markdown Cheatsheet to look up on.</p>
+		<p>This post is a review of the work [1] of  Kyunghyun Cho et al. </p>
 <a id="more"></a>
-<h1 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h1><hr>
-<h1 id="H1"><a href="#H1" class="headerlink" title="H1"></a>H1</h1><h3 id="H2"><a href="#H2" class="headerlink" title="H2"></a>H2</h3><h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ hexo new post POST</div><div class="line">$ hexo generate</div><div class="line">$ hexo clean</div><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<h1 id="Characters"><a href="#Characters" class="headerlink" title="Characters"></a>Characters</h1><hr>
-<p><s>Strikethrough (when enable html tag decode.)</s><br><em>Italic</em>      <em>Italic</em><br><strong>Emphasis</strong>  <strong>Emphasis</strong><br><strong><em>Emphasis Italic</em></strong> <strong><em>Emphasis Italic</em></strong></p>
-<p>Superscript: X<sub>2</sub>，Subscript: O<sup>2</sup></p>
-<h3 id="Format"><a href="#Format" class="headerlink" title="Format"></a>Format</h3><hr>
-<blockquote>
-<p>Blockquotes</p>
-</blockquote>
-<p><a href="http://localhost/" target="_blank" rel="external">Links</a></p>
-<p><code>quota</code> </p>
-<h3 id="Lists"><a href="#Lists" class="headerlink" title="Lists"></a>Lists</h3><hr>
-<ul>
-<li>Item A</li>
-<li>Item B</li>
-<li>Item C</li>
-</ul>
+<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>In Kyunghyun Cho et al.’s work [1], they proposed a RNN Encoder-Decoder model which can be adapted to</p>
 <ol>
-<li>Item A</li>
-<li>Item B</li>
-<li>Item C</li>
+<li>Cast a linguistic phrase to a dense continuous vector representation.</li>
+<li>Score a given pair of input and output sequences to enhance the performance of a statistical machine translation (MT) system. </li>
+<li>Generate a target sequence given a input sequence. </li>
 </ol>
-<h3 id="Images"><a href="#Images" class="headerlink" title="Images"></a>Images</h3><hr>
-<p><img src="/img/logo.svg" alt=""></p>
-<h3 id="Tables"><a href="#Tables" class="headerlink" title="Tables"></a>Tables</h3><hr>
-<table>
-<thead>
-<tr>
-<th>First Header</th>
-<th>Second Header</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Content Cell</td>
-<td>Content Cell</td>
-</tr>
-<tr>
-<td>Content Cell</td>
-<td>Content Cell </td>
-</tr>
-</tbody>
-</table>
-<h3 id="LaTeX"><a href="#LaTeX" class="headerlink" title="LaTeX"></a>LaTeX</h3><hr>
-<p>$$s_j^i =-\log(\dfrac{\exp{logits^i}}{\sum_{j=1}^V\exp{logits_j^i}})$$</p>
-<p>$$sin(\alpha)^{\theta}=\sum_{i=0}^{n}(x^i + \cos(f))$$</p>
+<p>In this work, the focus is mainly on the second type of usage. But I am more interested in the first kind of usage. I am going to briefly go through how RNN Encoder-Decoder model improves the performance of MT system and demonstrate the semantically and syntactically meaningful phrase vector representations  RNN Encoder-Decoder model can learn.</p>
+<h2 id="The-Model"><a href="#The-Model" class="headerlink" title="The Model"></a>The Model</h2><p>I assume readers are familiar with the Seq2Seq model which was proposed by Ilya Sutskever et al. [2] based on the model here. The major differences are</p>
+<ol>
+<li>Seq2Seq model reverses the order of input sequence while RNN Encoder-Decoder model is not.</li>
+<li>Seq2Seq model uses LSTM as its RNN unit while the model here uses GRU. (introduction about LSTM and GRU can be found <a href="http://cnyah.com/2017/06/26/gated-recurrent-neural-networks/">here</a>)</li>
+</ol>
+<h2 id="Enhance-Phrase-based-Translation-Model"><a href="#Enhance-Phrase-based-Translation-Model" class="headerlink" title="Enhance Phrase-based Translation Model"></a>Enhance Phrase-based Translation Model</h2><p>RNN  Encoder-Decoder is trained on bilingual corpora where the  frequencies of each phrase pair are ignored. Due to the reasons: 1) reduce the computetional expense 2) make sure the RNN Encoder-Decoder does not simply learn to rank the phrase pairs according to their numbers of occurances. 3) ensure most of capacity of the model is focused toward learning linguistic regularities.</p>
+<p>Trained RNN Encoder–Decoder adds a new score for each phrase pair to the existing phrase table where the score is simply the probability p( <strong>o</strong> | <strong>i</strong> ) here. The new score as a feature is used by existing tuning algorithms.</p>
+<p>Compared with baseline system Moses [3], the translation model adding the feature from RNN  performances better. Interestingly, According to Figure 1, despite many phrase pairs were scored similarly by both translation model and the RNN Encoder–Decoder, there were as many pairs that were scored radically different. They accounted it for that the RNN ignores the frequencies of phrase pairs from the corpus.</p>
+<p><img src="figure-1.png" alt="figure-1"></p>
+<p>Figure 1 is from [1].</p>
+<h2 id="Phrase-Representations"><a href="#Phrase-Representations" class="headerlink" title="Phrase Representations"></a>Phrase Representations</h2><p>Since the model is first to encode the input into length-fixed vector, this vector is potientially capable to represent the input. In K. Cho et al.’s experienment [1], this vector is 1000-dimensional. Figures below demonstrate both semantic and syntactic structures of the phrases is captured by RNN Encoder-Decoder. </p>
+<p><img src="word-representations-1.png" alt="word-representations-1"></p>
+<p>Figure 2: it is from [1] and shows the relative distances between learned word representations.</p>
+<p><img src="phrase-representations-1.png" alt="phrase-representations-1"></p>
+<p>Figure 3: it is from [1] and shows the relative distances between learned phrase representations.</p>
+<p><img src="phrase-representations-2.png" alt="phrase-representations-2"></p>
+<p>Figure 4: it is from [1] and shows the relative distances between learned phrase representations. </p>
+<h2 id="Notes"><a href="#Notes" class="headerlink" title="Notes"></a>Notes</h2><ul>
+<li>Instead of recovering input as Word2Vec approaches do, RNN Encoder-Decoder here builds word vectors by taking English phrases as input and producing corresponding French phrases.</li>
+<li>They mentioned that GRU can be regarded as a variant of a leaky-integration unit.</li>
+<li>They were not able to get meaningful result with an oft-used tanh unit without any gating.</li>
+<li>I personally feel like that using bilingual corpus can accelerate learning semantics of words. </li>
+<li>I wonder whether it is possible to segment Chinese words using similar approach on English-Chinese corpora.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Kyunghyun Cho et al. Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, 2014<br>[2] Ilya Sutskever et al. Sequence to Sequence Learning with Neural Networks, 2014<br>[3] Moses, <a href="http://www.statmt.org/moses/" target="_blank" rel="external">http://www.statmt.org/moses/</a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/notes/">notes</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/word-embeddings/">word embeddings</a>
   </div>
 
 
@@ -147,7 +133,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/06/25/cheatsheet/" data-title="Markdown Cheatsheet | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/09/learning-phrase-representations-using-RNN/" data-title="Learning Phrase Representations Using RNN | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -157,13 +143,21 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/06/26/gated-recurrent-neural-networks/" title="Gated Recurrent Neural Networks">
+ <a href="/2017/07/16/pointer-networks/" title="Pointer Networks">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  Gated Recurrent Neural Networks</span>
+  Pointer Networks</span>
 </a>
 </div>
 
+
+<div class="next">
+<a href="/2017/07/09/the-evolution-of-vector-word-representations/"  title="The Evolution of Vector Word Representations">
+ <strong>NEXT:</strong><br/> 
+ <span>The Evolution of Vector Word Representations
+</span>
+</a>
+</div>
 
 </nav>
 
@@ -173,7 +167,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Model"><span class="toc-number">2.</span> <span class="toc-text">The Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Enhance-Phrase-based-Translation-Model"><span class="toc-number">3.</span> <span class="toc-text">Enhance Phrase-based Translation Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phrase-Representations"><span class="toc-number">4.</span> <span class="toc-text">Phrase Representations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Notes"><span class="toc-number">5.</span> <span class="toc-text">Notes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">
