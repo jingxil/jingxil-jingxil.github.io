@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Implement Pointer Networks in Tensorflow | CN Yah</title>
+    <title>Collections of Datasets | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="I have implemented the Pointer Networks and used it to solve the Convex Hull problem. The project has been put on github.">
+    <meta name="description" content="A collection of datasets.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/23/implement pointer-networks/" title="Implement Pointer Networks in Tensorflow" itemprop="url">Implement Pointer Networks in Tensorflow</a>
+      <a href="/2017/07/31/collections-datasets/" title="Collections of Datasets" itemprop="url">Collections of Datasets</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-23T23:06:04.000Z" itemprop="datePublished">2017-23-07</time>
-    Updated:<time datetime="2017-07-30T15:06:23.000Z" itemprop="dateModified">2017-30-07</time>
+    <time datetime="2017-07-31T00:06:04.000Z" itemprop="datePublished">2017-31-07</time>
+    Updated:<time datetime="2017-07-29T15:56:33.000Z" itemprop="dateModified">2017-29-07</time>
     
   </p>
 </header>
@@ -82,17 +82,27 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chinese-Word-Analogy"><span class="toc-number">1.</span> <span class="toc-text">Chinese Word Analogy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Inferring"><span class="toc-number">2.</span> <span class="toc-text">Inferring</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SNLI"><span class="toc-number">2.1.</span> <span class="toc-text">SNLI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MultiNLI-dev"><span class="toc-number">2.2.</span> <span class="toc-text">MultiNLI (dev)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Machine-Comprehension"><span class="toc-number">3.</span> <span class="toc-text">Machine Comprehension</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SQuAD"><span class="toc-number">3.1.</span> <span class="toc-text">SQuAD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNN-Daily-Mail"><span class="toc-number">3.2.</span> <span class="toc-text">CNN/Daily Mail</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CBT"><span class="toc-number">3.3.</span> <span class="toc-text">CBT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WikiMovies"><span class="toc-number">3.4.</span> <span class="toc-text">WikiMovies</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wikireading"><span class="toc-number">3.5.</span> <span class="toc-text">Wikireading</span></a></li></ol></li></ol>
 		</div>
 		
-		<p>I have implemented the <a href="https://arxiv.org/abs/1506.03134" target="_blank" rel="external">Pointer Networks</a> and used it to solve the Convex Hull problem. The project has been put on github. <a id="more"></a> For everyone who might be interested, please click the <a href="https://github.com/jingxil/Pointer-Networks" target="_blank" rel="external">link</a>. </p>
+		<p>A collection of datasets.<br><a id="more"></a></p>
+<h2 id="Chinese-Word-Analogy"><a href="#Chinese-Word-Analogy" class="headerlink" title="Chinese Word Analogy"></a>Chinese Word Analogy</h2><p>This <a href="https://github.com/Leonard-Xu/CWE" target="_blank" rel="external">project</a> provided analogical reasoning dataset to evaluate word vectors of Chinese.</p>
+<h2 id="Inferring"><a href="#Inferring" class="headerlink" title="Inferring"></a>Inferring</h2><h3 id="SNLI"><a href="#SNLI" class="headerlink" title="SNLI"></a>SNLI</h3><p>The SNLI corpus (version 1.0) <a href="https://nlp.stanford.edu/projects/snli/" target="_blank" rel="external">link</a> is a collection of <strong>570k</strong> human-written English sentence pairs manually labeled for balanced classification with the labels entailment, contradiction, and neutral.<br><em>Related paper: A large annotated corpus for learning natural language inference. 2015</em></p>
+<h3 id="MultiNLI-dev"><a href="#MultiNLI-dev" class="headerlink" title="MultiNLI (dev)"></a>MultiNLI (dev)</h3><p>The Multi-Genre Natural Language Inference (MultiNLI) corpus is a crowd-sourced collection of <strong>433k</strong> sentence pairs annotated with textual entailment information. The corpus is modeled on the SNLI corpus, but differs in that covers a range of genres of spoken and written text, and supports a distinctive cross-genre generalization evaluation.<br><em>Related paper: A Broad-Coverage Challenge Corpus for Sentence Understanding through Inference. (dev)</em></p>
+<h2 id="Machine-Comprehension"><a href="#Machine-Comprehension" class="headerlink" title="Machine Comprehension"></a>Machine Comprehension</h2><h3 id="SQuAD"><a href="#SQuAD" class="headerlink" title="SQuAD"></a>SQuAD</h3><p><em>Related paper: SQuAD: 100,000+ questions for machine comprehension of text. 2016</em></p>
+<h3 id="CNN-Daily-Mail"><a href="#CNN-Daily-Mail" class="headerlink" title="CNN/Daily Mail"></a>CNN/Daily Mail</h3><p>The dataset is created by pairing CNN and Daily Mail news articles with their summarized bullet points. There are <strong>380k</strong> and <strong>879k</strong> training examples for CNN and Daily Mail respectively.<br><img src="CNN-example.png" alt="CNN-example"><br><em>Related paper: Teaching machines to read and comprehend. 2015</em></p>
+<h3 id="CBT"><a href="#CBT" class="headerlink" title="CBT"></a>CBT</h3><p>Children Book Test takes any consecutive 21 sentences from a children’s book – the first 20 sentences are used as the passage, and the goal is to infer a missing word in the 21st sentence.</p>
+<p><em>Related paper: The Goldilocks Principle: Reading children’s books with explicit memory representations. 2016</em></p>
+<h3 id="WikiMovies"><a href="#WikiMovies" class="headerlink" title="WikiMovies"></a>WikiMovies</h3><p>This dataset contains 96k question-answer pairs in the domain of movies. Originally created from the OMDb and MovieLens databases.</p>
+<p><em>Related paper: Key-value memory networks for directly reading documents. 2016</em></p>
+<h3 id="Wikireading"><a href="#Wikireading" class="headerlink" title="Wikireading"></a>Wikireading</h3><p><em>Related paper: A novel large-scale language understanding task over wikipedia. 2016</em></p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/project/">project</a>
+  <span></span> <a href="/tags/collections/">collections</a>
   </div>
 
 
@@ -100,7 +110,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/23/implement pointer-networks/" data-title="Implement Pointer Networks in Tensorflow | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/31/collections-datasets/" data-title="Collections of Datasets | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -110,18 +120,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/07/24/SeqMatchSeq/" title="SeqMatchSeq">
+ <a href="/2017/07/31/combine-mLSTM-and-pointer-net/" title="Combine match-LSTM and Pointer Network">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  SeqMatchSeq</span>
+  Combine match-LSTM and Pointer Network</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2017/07/23/collections-projects/"  title="Collections of Projects">
+<a href="/2017/07/24/SeqMatchSeq/"  title="SeqMatchSeq">
  <strong>NEXT:</strong><br/> 
- <span>Collections of Projects
+ <span>SeqMatchSeq
 </span>
 </a>
 </div>
@@ -134,7 +144,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chinese-Word-Analogy"><span class="toc-number">1.</span> <span class="toc-text">Chinese Word Analogy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Inferring"><span class="toc-number">2.</span> <span class="toc-text">Inferring</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SNLI"><span class="toc-number">2.1.</span> <span class="toc-text">SNLI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MultiNLI-dev"><span class="toc-number">2.2.</span> <span class="toc-text">MultiNLI (dev)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Machine-Comprehension"><span class="toc-number">3.</span> <span class="toc-text">Machine Comprehension</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SQuAD"><span class="toc-number">3.1.</span> <span class="toc-text">SQuAD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNN-Daily-Mail"><span class="toc-number">3.2.</span> <span class="toc-text">CNN/Daily Mail</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CBT"><span class="toc-number">3.3.</span> <span class="toc-text">CBT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WikiMovies"><span class="toc-number">3.4.</span> <span class="toc-text">WikiMovies</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wikireading"><span class="toc-number">3.5.</span> <span class="toc-text">Wikireading</span></a></li></ol></li></ol>
   </div>
 
 <div id="asidepart">

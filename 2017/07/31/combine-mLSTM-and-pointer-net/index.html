@@ -1,0 +1,381 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>Combine match-LSTM and Pointer Network | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="Shuohang Wang et al. [1] proposed a model based match-LSTM (see my post) and Pointer Network (see my post) to">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/07/31/combine-mLSTM-and-pointer-net/" title="Combine match-LSTM and Pointer Network" itemprop="url">Combine match-LSTM and Pointer Network</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-07-31T01:07:04.000Z" itemprop="datePublished">2017-31-07</time>
+    Updated:<time datetime="2017-07-31T01:04:28.000Z" itemprop="dateModified">2017-31-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SQuAD"><span class="toc-number">1.</span> <span class="toc-text">SQuAD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LSTM-preprocessing-layer"><span class="toc-number">2.1.</span> <span class="toc-text">LSTM preprocessing layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Match-LSTM-layer"><span class="toc-number">2.2.</span> <span class="toc-text">Match-LSTM layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Pointer-layer"><span class="toc-number">2.3.</span> <span class="toc-text">Answer Pointer layer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Settings"><span class="toc-number">3.</span> <span class="toc-text">Experiment Settings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analyses"><span class="toc-number">4.</span> <span class="toc-text">Analyses</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>Shuohang Wang et al. [1] proposed a model based match-LSTM (see my <a href="http://cnyah.com/2017/07/24/SeqMatchSeq/">post</a>) and Pointer Network (see my <a href="http://cnyah.com/2017/07/16/pointer-networks/">post</a>) to <a id="more"></a> tackle machine comprehension task. The dataset they used is Stanford Question Answering Dataset (SQuAD) releazed in 2016.</p>
+<h2 id="SQuAD"><a href="#SQuAD" class="headerlink" title="SQuAD"></a>SQuAD</h2><p><a href="https://rajpurkar.github.io/SQuAD-explorer/" target="_blank" rel="external">SQuAD</a> contains 100,000+ question-answer pairs on 500+ articles, where the answer to every question is a segment of text, or span, from the corresponding reading passage. An example is in Figure 1.</p>
+<p><img src="SQuAD_sample.png" alt="SQuAD_sample"><br>Figure 1</p>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>Depending on how to use the pointer network, there are two models. One is to only predict the anwser boundary since answers always consecutive words from the passage. The other is to predict every word in the answer. Overall, both models consist of three layers 1) LSTM preprocessing layer 2) match-LSTM layer 3) Answer Pointer layer. An overview of two models are shown in Figure 2.<br><img src="architecture.png" alt="overview"><br>Figure 2 from [1]</p>
+<h3 id="LSTM-preprocessing-layer"><a href="#LSTM-preprocessing-layer" class="headerlink" title="LSTM preprocessing layer"></a>LSTM preprocessing layer</h3><p>The purpose is to encode the passage and question. Hidden states of passage P and question Q are obtained by<br>$$<br>H^q = \mbox{LSTM}(Q) \quad H^p = \mbox{LSTM}(P)<br>$$</p>
+<h3 id="Match-LSTM-layer"><a href="#Match-LSTM-layer" class="headerlink" title="Match-LSTM layer"></a>Match-LSTM layer</h3><p>Like in Match-LSTM, the attention is calculated as below ( <strong>Note</strong>: there are two more learnable parameters $\vec{b}^{p}$ and $b$ compared with Match-LSTM ):<br>$$<br>e_{ij} = \vec{w}^{T}\tanh(\vec{W}^{q}\vec{h}_{j}^{q} + \vec{W}^{p}\vec{h}_{i}^{p} + \vec{b}^{p} + \vec{W}^{m}\vec{h}_{i-1}^{m}) + b<br>$$</p>
+<p>$$<br>\alpha_{ij}=\mbox{softmax}(e_{ij} ) \quad  j \in [1,…,|Q|]<br>$$</p>
+<p>$$<br>\vec{a}_{i} = \sum_{j=1}^{|Q|} \alpha_{ij}\vec{h}_{j}^{q}<br>$$</p>
+<p>To calculate $\vec{h}_{i+1}^{m}$, we concatenate the hidden state of passage $\vec{h}_{i}^{p}$ and attention $\vec{a}_{i}$ as the input<br>$$<br>\vec{x}_{i} = \begin{bmatrix} \vec{h}_{i}^{p} \\ \vec{a}_{i} \end{bmatrix}<br>$$<br>After putting it into LSTM function, $\vec{h}_{i+1}^{m}$ is attained by<br>$$<br>\vec{h}_{i+1}^{m} = \mbox{LSTM}(\vec{x}_{i},\vec{h}_{i}^{m})<br>$$</p>
+<p>bi-directional LSTM is adapted to get (Note that the parameters are shared between forward and backward LSTMs ):<br>$$<br>H^{m} = \begin{bmatrix}  \overrightarrow{H^{m}}  \\ \overleftarrow{H^{m}} \end{bmatrix}<br>$$</p>
+<h3 id="Answer-Pointer-layer"><a href="#Answer-Pointer-layer" class="headerlink" title="Answer Pointer layer"></a>Answer Pointer layer</h3><p>This layer once again attends. The input is got by concatenating hidden state of <end> token and $H^{m}$. The output which is a sequence of integers which range from 0 to |P|, is defined as:</end></p>
+<p>$$<br>e_{ij}^{m} = \vec{v}^{T}\tanh(\vec{W}^{m}\vec{h}_{j}^{m} + \vec{W}^{a}\vec{h}_{i-1}^{a} + \vec{b}^{a}) + c<br>$$</p>
+<p>$$<br>\beta_{ij}=\mbox{softmax}(e_{ij}^{m} ) \quad  j \in [0,…,|P|]<br>$$</p>
+<p>$$<br>P(a_{i}=j|a_{0},a_{1},…,a_{i-1},\theta) = \beta_{ij}<br>$$</p>
+<p>$\vec{h}_{i}^{a}$ is computed as follows ( <strong>Note</strong>: the input in here is the attention):</p>
+<p>$$<br>\vec{a}_{i}^{m} = \sum_{j=1}^{|P|+1} \beta_{ij}\vec{h}_{j}^{m}<br>$$</p>
+<p>$$<br>\vec{h}_{i}^{a} = \mbox{LSTM}(\vec{a}_{i}^{m},\vec{h}_{i-1}^{a})<br>$$</p>
+<h2 id="Experiment-Settings"><a href="#Experiment-Settings" class="headerlink" title="Experiment Settings"></a>Experiment Settings</h2><ul>
+<li>words not found in GloVe are initialized as zero vectors</li>
+<li>hidden layers is set to be 150 or 300</li>
+<li>use ADAMAX with the coefficients $\beta_{1}$ = 0.9 and $\beta_{2}$ = 0.999</li>
+<li>do not use L2-regularization</li>
+</ul>
+<h2 id="Analyses"><a href="#Analyses" class="headerlink" title="Analyses"></a>Analyses</h2><p>The result in Table 1 showed that 1) Setting the dimensionality of layers to 150 is enough since doubling the dimensionality helps little. 2) beam search should always be considered.</p>
+<p>Table 1 from [1]: Here “Search” refers to globally searching the spans with no more than 15 tokens, “b” refers to using bi-directional pre-processing LSTM, and “en” refers to ensemble method.<br><img src="result.png" alt="result"></p>
+<p>Figure 3 showed that 1) longer answers are harder to predict for their models 2) their models work the best for “when” questions and worst on “why” questions.<br><img src="question_type_n_length.png" alt="question_type_n_length"><br>Figure 3 from [1]: Performance breakdown by answer lengths and question types.</p>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ol>
+<li>I am not sure about their motivations to add two learnable biases when compute attentions. But, I personally think at least $b$ can not help and also have doubts on the effect of $\vec{b}^{p}$</li>
+<li>They used the LSTM without output gate because it barely had influence on performance. Maybe they should give the GRU a try, since its structure is much simpler than the LSTM. </li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Shuohang Wang et al. Machine Comprehension Using Match-LSTM and Answer Pointer. 2016<br>[2] Pranav Rajpurkar et al. SQuAD: 100,000+ questions for machine comprehension of text. 2016</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/machine-comprehension/">machine comprehension</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/07/31/combine-mLSTM-and-pointer-net/" data-title="Combine match-LSTM and Pointer Network | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/07/31/a-thorough-examination-of-CNN-Daily-Mail-dataset/" title="A Thorough Examination of CNN/Daily Mail dataset">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  A Thorough Examination of CNN/Daily Mail dataset</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/07/31/collections-datasets/"  title="Collections of Datasets">
+ <strong>NEXT:</strong><br/> 
+ <span>Collections of Datasets
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SQuAD"><span class="toc-number">1.</span> <span class="toc-text">SQuAD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LSTM-preprocessing-layer"><span class="toc-number">2.1.</span> <span class="toc-text">LSTM preprocessing layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Match-LSTM-layer"><span class="toc-number">2.2.</span> <span class="toc-text">Match-LSTM layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Pointer-layer"><span class="toc-number">2.3.</span> <span class="toc-text">Answer Pointer layer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Settings"><span class="toc-number">3.</span> <span class="toc-text">Experiment Settings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analyses"><span class="toc-number">4.</span> <span class="toc-text">Analyses</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>3</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>2</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>9</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+

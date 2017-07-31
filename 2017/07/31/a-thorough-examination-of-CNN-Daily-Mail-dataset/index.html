@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Implement Pointer Networks in Tensorflow | CN Yah</title>
+    <title>A Thorough Examination of CNN/Daily Mail dataset | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="I have implemented the Pointer Networks and used it to solve the Convex Hull problem. The project has been put on github.">
+    <meta name="description" content="Danqi Chen et al. [1] gave an in-depth examination of a small subset of CNN/Daily Mail dataset. Also they proposed a neural model">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/23/implement pointer-networks/" title="Implement Pointer Networks in Tensorflow" itemprop="url">Implement Pointer Networks in Tensorflow</a>
+      <a href="/2017/07/31/a-thorough-examination-of-CNN-Daily-Mail-dataset/" title="A Thorough Examination of CNN/Daily Mail dataset" itemprop="url">A Thorough Examination of CNN/Daily Mail dataset</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-23T23:06:04.000Z" itemprop="datePublished">2017-23-07</time>
-    Updated:<time datetime="2017-07-30T15:06:23.000Z" itemprop="dateModified">2017-30-07</time>
+    <time datetime="2017-07-31T03:06:05.000Z" itemprop="datePublished">2017-31-07</time>
+    Updated:<time datetime="2017-07-31T01:03:56.000Z" itemprop="dateModified">2017-31-07</time>
     
   </p>
 </header>
@@ -82,17 +82,64 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-types-in-CNN"><span class="toc-number">1.</span> <span class="toc-text">Question types in CNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conventional-Model"><span class="toc-number">2.</span> <span class="toc-text">Conventional Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Model"><span class="toc-number">3.</span> <span class="toc-text">Neural Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">4.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>I have implemented the <a href="https://arxiv.org/abs/1506.03134" target="_blank" rel="external">Pointer Networks</a> and used it to solve the Convex Hull problem. The project has been put on github. <a id="more"></a> For everyone who might be interested, please click the <a href="https://github.com/jingxil/Pointer-Networks" target="_blank" rel="external">link</a>. </p>
+		<p>Danqi Chen et al. [1] gave an in-depth examination of a small subset of CNN/Daily Mail dataset. Also they proposed a neural model <a id="more"></a> whose performance they think is appoarching the ceiling on this dataset.<br><!-- more --></p>
+<h2 id="Question-types-in-CNN"><a href="#Question-types-in-CNN" class="headerlink" title="Question types in CNN"></a>Question types in CNN</h2><p>After carefully analyzing 100 samples picked randomly, they found out that there existed roughtly 6 categories:</p>
+<ul>
+<li><strong>Exact Match</strong>: The words around @placeholder also appear around @entity.</li>
+<li><strong>Sentence-level paraphrasing</strong>: The question text is entailed/rephrased by exactly one sentence in the passage.</li>
+<li><strong>Partial clue</strong>: Question and sentence have word or concept overlap, even though no complete semantic match between the question text and some sentence exists.</li>
+<li><strong>Multiple sentences</strong>: Processing multiple sentences to infer the correct answer is required.</li>
+<li><strong>Coreference Errors</strong>: This category includes those examples with critical coreference errors for the answer en- tity or key entities appearing in the question.</li>
+<li><strong>Ambiguous or very hard</strong>: This category includes examples for which we think humans are not able to obtain the correct answer (confidently).</li>
+</ul>
+<p>Table 1 presents one representative example from each category. And Table 2 provide an estimated category distribution.</p>
+<p>Table 1 from [1]: Some representative examples from each category<br><img src="samples.png" alt="samples"><br>Table 2 from [1]: An estimate of the breakdown of the dataset into classes, based on the analysis of our sampled 100 examples from the CNN dataset.<br><img src="distribution.png" alt="distribution"></p>
+<p>Based on above analysis, they concluded</p>
+<ol>
+<li>this dataset is easier than previously realized</li>
+<li>straightforward, conventional NLP systems can do much better on it than previously suggested</li>
+<li>the prospects for getting the final 20% of questions correct appear poor, since most of them involve issues in the data preparation which undermine the chances of answering the question.</li>
+</ol>
+<h2 id="Conventional-Model"><a href="#Conventional-Model" class="headerlink" title="Conventional Model"></a>Conventional Model</h2><p>Basically, the conventional model is based on rules. It contains a feature vector $f_{p,q}$ for each candidate entity $e$, and learns a weight vector $\theta$ such that<br>$$<br>\theta^Tf_{p,q}(e_{true}) \geqslant \theta^Tf_{p,q}(e) \quad e \in E \cap p<br>$$<br>The employed feature templates are:</p>
+<ol>
+<li>Whether entity e occurs in the passage.</li>
+<li>Whether entity e occurs in the question.</li>
+<li>The frequency of entity e in the passage.</li>
+<li>The first position of occurence of entity e in the passage.</li>
+<li>n-gram exact match: whether there is an exact match between the text surrounding the place holder and the text surrounding entity e. Each combination of matching left and/or right one or two words is regarded as a feature.</li>
+<li>Word distance: the placeholder is aligned with each occurrence of entity e to compute the average minimum distance of each non-stop question word from the entity in the passage。</li>
+<li>Sentence co-occurrence: whether entity e co-occurs with another entity or verb that appears in the question, in some sentence of the passage.</li>
+<li>Dependency parse match: both the question and all the sentences are dependency parsed in the passage, and extract an indicator feature.</li>
+</ol>
+<p>Table 3 showed that the frequency of entity e and n-gram match play an important role in performance.<br>Table 3 from [1]: Feature ablation analysis<br><img src="conventional-model-results.png" alt="conventional-model-results"></p>
+<h2 id="Neural-Model"><a href="#Neural-Model" class="headerlink" title="Neural Model"></a>Neural Model</h2><p>The overview of the neural model architecture is in Figure 1. There are three steps:</p>
+<p>Firstly, after embedding, the passage is encoded by bi-GRU to the context/memory $P \cong [\vec{p}_{1},\vec{p}_{2},…,\vec{p}_{|P|}]$ and the answer is encoded by bi-GRU to a vector.</p>
+<p>Then, compute the Luong style attention [2]<br>$$<br>\alpha_{i} = \mbox{sofmax}(\vec{q}^T\vec{W}\vec{p}_{i})<br>$$<br>$$<br>\vec{o} = \sum_{i=1}^{|P|}(\alpha_{i}\vec{p}_{i})<br>$$<br>Finally, $\vec{o}$ is used to predict the answer $a$:<br>$$<br>a = \mbox{arg max}_{a \in p \cap E } \vec{W}_{a}\vec{o}<br>$$</p>
+<p><img src="neural-model-architecture.png" alt="neural-model-architecture"><br>Figure 1 from [1]: The neural model architecture </p>
+<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><ul>
+<li>hidden size h = 128</li>
+<li>learning rate of 0.1</li>
+<li>mini-batch of size 32</li>
+<li>dropout with probability 0.2 to the embed- ding layer</li>
+<li>gradient clipping when the norm of gradients exceeds 10</li>
+<li>relabel the entity markers based on their first occurrence in the passage and question</li>
+<li>run all the models up to 30 epochs</li>
+</ul>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ol>
+<li>The conventional model is SVM.</li>
+<li>I prefer to not encode the question to one single vector at early stage.</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Danqi Chen et al. A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task. 2016<br>[2] Thang Luong et al. Effective approaches to attention-based neural machine translation. 2015</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/project/">project</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/machine-comprehension/">machine comprehension</a>
   </div>
 
 
@@ -100,7 +147,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/23/implement pointer-networks/" data-title="Implement Pointer Networks in Tensorflow | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/31/a-thorough-examination-of-CNN-Daily-Mail-dataset/" data-title="A Thorough Examination of CNN/Daily Mail dataset | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -110,18 +157,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/07/24/SeqMatchSeq/" title="SeqMatchSeq">
+ <a href="/2017/07/31/machine-reading-at-scale/" title="Machine Reading at Scale">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  SeqMatchSeq</span>
+  Machine Reading at Scale</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2017/07/23/collections-projects/"  title="Collections of Projects">
+<a href="/2017/07/31/combine-mLSTM-and-pointer-net/"  title="Combine match-LSTM and Pointer Network">
  <strong>NEXT:</strong><br/> 
- <span>Collections of Projects
+ <span>Combine match-LSTM and Pointer Network
 </span>
 </a>
 </div>
@@ -134,7 +181,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Question-types-in-CNN"><span class="toc-number">1.</span> <span class="toc-text">Question types in CNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conventional-Model"><span class="toc-number">2.</span> <span class="toc-text">Conventional Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Model"><span class="toc-number">3.</span> <span class="toc-text">Neural Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">4.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">

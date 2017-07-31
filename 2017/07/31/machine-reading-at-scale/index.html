@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Implement Pointer Networks in Tensorflow | CN Yah</title>
+    <title>Machine Reading at Scale | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="I have implemented the Pointer Networks and used it to solve the Convex Hull problem. The project has been put on github.">
+    <meta name="description" content="If I get my hand on the SQuAD dataset, I will only consider how to solve the problem. But Danqi Chen et al. thought out of the box,">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/23/implement pointer-networks/" title="Implement Pointer Networks in Tensorflow" itemprop="url">Implement Pointer Networks in Tensorflow</a>
+      <a href="/2017/07/31/machine-reading-at-scale/" title="Machine Reading at Scale" itemprop="url">Machine Reading at Scale</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-23T23:06:04.000Z" itemprop="datePublished">2017-23-07</time>
-    Updated:<time datetime="2017-07-30T15:06:23.000Z" itemprop="dateModified">2017-30-07</time>
+    <time datetime="2017-07-31T04:06:04.000Z" itemprop="datePublished">2017-31-07</time>
+    Updated:<time datetime="2017-07-31T01:06:19.000Z" itemprop="dateModified">2017-31-07</time>
     
   </p>
 </header>
@@ -82,17 +82,41 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Network-Model"><span class="toc-number">1.</span> <span class="toc-text">Neural Network Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">3.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>I have implemented the <a href="https://arxiv.org/abs/1506.03134" target="_blank" rel="external">Pointer Networks</a> and used it to solve the Convex Hull problem. The project has been put on github. <a id="more"></a> For everyone who might be interested, please click the <a href="https://github.com/jingxil/Pointer-Networks" target="_blank" rel="external">link</a>. </p>
+		<p>If I get my hand on the SQuAD dataset, I will only consider how to solve the problem. But Danqi Chen et al. thought out of the box, <a id="more"></a> and came up with a new and bigger problem which is machine reading at scale.</p>
+<p>To accomplish the task of reading Wikipedia to answer open-domain questions, they combined a search component based on bigram hashing and TF-IDF matching with a multi-layer recurrent neural network model trained to detect answers in Wikipedia paragraphs. I only focus on the neural network model.</p>
+<h2 id="Neural-Network-Model"><a href="#Neural-Network-Model" class="headerlink" title="Neural Network Model"></a>Neural Network Model</h2><p>This model can be summaried as 1) Paragraph feature vector extraction 2) Paragraph encoding 3) Question encoding and 4) Prediction.</p>
+<p><strong>Paragraph feature vector extraction</strong>: The feature vector of each token in paragraph is comprised of the following parts:</p>
+<ul>
+<li>Word embeddings: the 1000 most frequent question words will be fine-tuned. </li>
+<li>Exact match: three simple binary features is used to indicate whether the token can be exactly matched to one question word either in its original, lowercase or lemma form. </li>
+<li>Token features:  $f_{token}(p_{i}) = (\mbox{POS}(p_{i}),\mbox{NER}(p_{i}),\mbox{TF}(p_{i}))$. </li>
+<li>Aligned question embedding : $f_{align}(p_{i}) = \sum_{j=1}^{|Q|}\alpha_{i,j}\vec{q}_{j}$, where alignment $\alpha_{i,j}$ caputures the similarity between passage word embedding $\vec{p}_{j}$  and question word embedding $\vec{q}_{j}$. Compared to the exact match features, these features add soft alignments between similar but non-identical words. $\alpha_{i,j}$ is computed as<br>$$<br>\alpha_{i,j} = \frac{\exp(\mbox{ReLU}(\vec{W}_a\vec{p}_i+\vec{b})\cdot \mbox{ReLU}(\vec{W}_a\vec{q}_j+\vec{b}))}{\sum_{j}\exp(\mbox{ReLU}(\vec{W}_a\vec{p}_i+\vec{b})\cdot \mbox{ReLU}(\vec{W}_a\vec{q}_j+\vec{b}))}<br>$$ </li>
+</ul>
+<p><strong>Paragraph encoding</strong>: Paragraph feature vectors are taken as the input of multi-layer bi-LSTMs to get $\vec{h}_{i}^{p}$.</p>
+<p><strong>Question encoding</strong>: another recurrent neural network is applied on top of the word embeddings $\vec{q}_i$ and combine all hidden states into one vector $\vec{q}$:<br>$$<br>\beta_{j} = \frac{\exp(\vec{w}\cdot\vec{q}_{j})}{\sum_{j}\exp(\vec{w}\cdot\vec{q}_{j})}<br>$$</p>
+<p>$$<br>\vec{q} = \sum_{j}\beta_{j}\vec{q}_{j}<br>$$<br><strong>Prediction</strong>: a bilinear term is used to capture the similarity between $\vec{p}_{i}$ and $\vec{q}$ and compute the probabilities of each token being start and end as:<br>$$<br>P_{start}(i) \propto \exp(\vec{p}_{i} \vec{W}_{s} \vec{q})<br>$$<br>$$<br>P_{end}(i) \propto \exp(\vec{p}_{i} \vec{W}_{e} \vec{q})<br>$$</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>Table 1 gives the feature ablation result. Without either Exact Match or Aligned Embedding the model still be able to achive F1 over 77%. However, if both of them are removed, the F1 score drops to 59.4%. So it seems <strong>these two features play a similar but complementary role</strong>.</p>
+<p>Table 1 from [1]: Feature ablation analysis<br><img src="feature-contribution.png" alt="feature contribution"></p>
+<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><ul>
+<li>3-layer bidirectional LSTMs with h = 128 hidden units</li>
+<li>mini-batches of 32 examples each</li>
+<li>use Adamax</li>
+<li>Dropout with p = 0.3 is applied to word embeddings and all the hidden units of LSTMs</li>
+</ul>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
+<li>Exact Match feature and Attention feature do function similarly. Exact Match is based on token identity and Attention feature is based on word analogy. </li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Danqi Chen et al. Reading Wikipedia to Answer Open-Domain Questions. 2017</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/project/">project</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/machine-comprehension/">machine comprehension</a>
   </div>
 
 
@@ -100,7 +124,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/23/implement pointer-networks/" data-title="Implement Pointer Networks in Tensorflow | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/31/machine-reading-at-scale/" data-title="Machine Reading at Scale | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -109,19 +133,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/07/24/SeqMatchSeq/" title="SeqMatchSeq">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  SeqMatchSeq</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2017/07/23/collections-projects/"  title="Collections of Projects">
+<a href="/2017/07/31/a-thorough-examination-of-CNN-Daily-Mail-dataset/"  title="A Thorough Examination of CNN/Daily Mail dataset">
  <strong>NEXT:</strong><br/> 
- <span>Collections of Projects
+ <span>A Thorough Examination of CNN/Daily Mail dataset
 </span>
 </a>
 </div>
@@ -134,7 +150,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Network-Model"><span class="toc-number">1.</span> <span class="toc-text">Neural Network Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">3.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">
