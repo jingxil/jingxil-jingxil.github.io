@@ -1,0 +1,370 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>An Empirical Exploration of RNN Architectures | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="Rafal Jozefowicz et al.[1] explored several RNN architectures and evaluated them empirically.">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/08/02/an-empirical-exploration-of-RNN-architectures/" title="An Empirical Exploration of RNN Architectures" itemprop="url">An Empirical Exploration of RNN Architectures</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-08-02T07:00:00.000Z" itemprop="datePublished">2017-02-08</time>
+    Updated:<time datetime="2017-08-21T07:39:21.000Z" itemprop="dateModified">2017-21-08</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Search-Procedure"><span class="toc-number">1.</span> <span class="toc-text">The Search Procedure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Datasets"><span class="toc-number">2.</span> <span class="toc-text">Datasets</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Arithmetic"><span class="toc-number">2.1.</span> <span class="toc-text">Arithmetic</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XML-modelling"><span class="toc-number">2.2.</span> <span class="toc-text">XML modelling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Penn-Tree-Bank"><span class="toc-number">2.3.</span> <span class="toc-text">Penn Tree-Bank</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Music"><span class="toc-number">2.4.</span> <span class="toc-text">Music</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results"><span class="toc-number">3.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#About-LSTM"><span class="toc-number">4.</span> <span class="toc-text">About LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Resist-Vanishing-Gradient-Problem"><span class="toc-number">4.1.</span> <span class="toc-text">Resist Vanishing Gradient Problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LSTM’s-Trick"><span class="toc-number">4.2.</span> <span class="toc-text">LSTM’s Trick</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ablation-on-LSTM"><span class="toc-number">4.3.</span> <span class="toc-text">Ablation on LSTM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Appendix"><span class="toc-number">6.</span> <span class="toc-text">Appendix</span></a></li></ol>
+		</div>
+		
+		<p>Rafal Jozefowicz et al.[1] explored several RNN architectures and evaluated them empirically. <a id="more"></a>They identified several architectures (GRU variants) that outperforms both the LSTM and GRU on some tasks. They found adding a bias of 1 to the LSTM’s forget gate closes the gap between the LSTM and GRU.</p>
+<h2 id="The-Search-Procedure"><a href="#The-Search-Procedure" class="headerlink" title="The Search Procedure"></a>The Search Procedure</h2><p>First, the architecture is used to solve a simple memorization problem (read sequences and then reproduce them).  architectures with teacher forcing achieving below 95% performance are discarded. Secondly, architecures are required to reach 90% performace of the GRU’s best performance on 3 tasks (Arithmetic, XML modelling, Penn Tree-Bank). To measure the generalization ability of architecures, Music datasets are also used.</p>
+<h2 id="Datasets"><a href="#Datasets" class="headerlink" title="Datasets"></a>Datasets</h2><h3 id="Arithmetic"><a href="#Arithmetic" class="headerlink" title="Arithmetic"></a>Arithmetic</h3><p>In this problem, the RNN is required to compute the digits of the sum or difference of two numbers, where it first reads the sequence which has the two arguments, and then emits their sum, one character at a time.</p>
+<h3 id="XML-modelling"><a href="#XML-modelling" class="headerlink" title="XML modelling"></a>XML modelling</h3><p>The goal of this problem is to predict the next character in synthetic XML dataset.</p>
+<h3 id="Penn-Tree-Bank"><a href="#Penn-Tree-Bank" class="headerlink" title="Penn Tree-Bank"></a>Penn Tree-Bank</h3><p>A word-level language modelling task on the Penn TreeBank following the precise setup of [4], which has 1M words with a vocabulary of size 10,000.</p>
+<h3 id="Music"><a href="#Music" class="headerlink" title="Music"></a>Music</h3><p>RNNs were required to predict binary vectors representing the notes played at a given timestep.</p>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><p>In this paper all best architectures are GRU varients. The results are showed in Table 1, 2 and 3.</p>
+<p><img src="table-1.png" alt="table-1"><br><img src="table-2.png" alt="table-2"><br><img src="table-3.png" alt="table-3"></p>
+<h2 id="About-LSTM"><a href="#About-LSTM" class="headerlink" title="About LSTM"></a>About LSTM</h2><h3 id="Resist-Vanishing-Gradient-Problem"><a href="#Resist-Vanishing-Gradient-Problem" class="headerlink" title="Resist Vanishing Gradient Problem"></a>Resist Vanishing Gradient Problem</h3><ul>
+<li>The use of powerful second-order optimization algorithms.</li>
+<li>Regularization of the RNN’s weights.</li>
+<li>Giving up on learning the recurrent weights altogether.</li>
+<li>Very careful initialization of RNN’s parameters.</li>
+<li>The use of LSTM. </li>
+</ul>
+<h3 id="LSTM’s-Trick"><a href="#LSTM’s-Trick" class="headerlink" title="LSTM’s Trick"></a>LSTM’s Trick</h3><p>Let $S_{t}$ denote a hidden state at timestep t. The LSTM directly computes $\delta S_{t}$, which is then added to $S_{t-1}$ to obtain $S_{t}$ instead of computing $S_{t}$ from $S_{t-1}$ with a matrix-vector product followed by a nonlinearity. Concretely, given that $S_{1000} = \sum_{t=1}^{1000}\delta S_{t}$, every single $\delta S_{t}$ will receive a sizeable contribution from the gradient at timestep 1000. </p>
+<h3 id="Ablation-on-LSTM"><a href="#Ablation-on-LSTM" class="headerlink" title="Ablation on LSTM"></a>Ablation on LSTM</h3><ol>
+<li>Forget gate is extremely significant on all problems except language modelling(supported by [2]). </li>
+<li>Input gate is the second most important.</li>
+<li>Output gate is unimportant(supported by [3]). </li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Rafal Jozefowicz et al. An Empirical Exploration of Recurrent Network Architectures. 2015<br>[2] Mikolov et al. Learning longer memory in recurrent neural networks. 2014<br>[3] Shuohang Wang et al. MACHINE COMPREHENSION USING MATCH-LSTM AND ANSWER POINTER. 2016<br>[4] Mikolov Tomas et al. Recurrent neural network based language model. 2010</p>
+<h2 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h2><p>Here we review the forward and backpropagation processes of LSTM. Let’s consider the simplest case, one layer LSTM, the forward process at time step t is:<br>$$\begin{eqnarray}<br>\vec{\tilde{C}}_t = \mbox{tanh}(W_c\vec{x}_t + U_c\vec{h}_{t-1} + \vec{b}_c) \\<br>\vec{f}_t = \sigma(W_f\vec{x}_t + U_f\vec{h}_{t-1} + \vec{b}_f) \\<br>\vec{i}_t = \sigma(W_i\vec{x}_t + U_i\vec{h}_{t-1} + \vec{b}_i) \\<br>\vec{C}_t = \vec{f}_t \oplus \vec{C}_{t-1} + \vec{i}_t \oplus \vec{\tilde{C}}_t \\<br>\vec{o}_t = \sigma(W_o\vec{x}_t + U_o\vec{h}_{t-1} + \vec{b}_o) \\<br>\vec{h}_t = \vec{o}_t \oplus \mbox{tanh}(\vec{C}_t)<br>\end{eqnarray}$$</p>
+<p>Next, we calculate the gradient $\frac{dh_t}{dh_{t-1}}$ via back propagation. From (6), we get<br>$$\begin{eqnarray}<br>\frac{d\vec{h}_t}{d\vec{o}_t} =  \mbox{tanh}(\vec{C}_t) \\<br>\frac{d\vec{h}_t}{d\vec{C}_t} =  \vec{o}_t \oplus (1- \mbox{tanh}^2(\vec{C}_t))   \\<br>\end{eqnarray}$$</p>
+<p>From (5) (3) (2), we get<br>$$\begin{eqnarray}<br>\frac{d\vec{o}_t}{d\vec{h}_{t-1}} = ((1-\vec{o}_t)\oplus\vec{o}_t) \oplus U_o  \\<br>\frac{d\vec{i}_t}{d\vec{h}_{t-1}} = ((1-\vec{i}_t)\oplus\vec{i}_t) \oplus U_i  \\<br>\frac{d\vec{f}_t}{d\vec{h}_{t-1}} = ((1-\vec{f}_t)\oplus\vec{f}_t) \oplus U_f  \\<br>\end{eqnarray}$$</p>
+<p>From (4), we obtain<br>$$\begin{eqnarray}<br>\frac{d\vec{C}_t}{d\vec{f}_{t}} = \vec{C}_{t-1} \\<br>\frac{d\vec{C}_t}{d\vec{i}_{t}} = \vec{\tilde{C}}_t  \\<br>\frac{d\vec{C}_t}{d\vec{C}_{t-1}} = \vec{f}_t  \\<br>\end{eqnarray}$$</p>
+<p>From (1) we obtain<br>$$\begin{eqnarray}<br>\frac{d\vec{\tilde{C}}_t}{d\vec{h}_{t-1}} = (1-\mbox{tanh}^2(\vec{\tilde{C}}_t)) \oplus U_c<br>\end{eqnarray}$$ </p>
+<p>Based on (1) ~ (6), we have<br>$$<br>\frac{dh_t}{dh_{t-1}} = \frac{d\vec{h}_t}{d\vec{o}_t}\frac{d\vec{f}_t}{d\vec{h}_{t-1}} + \frac{d\vec{h}_t}{d\vec{C}_t}(\frac{d\vec{C}_t}{d\vec{f}_{t}}\frac{d\vec{f}_t}{d\vec{h}_{t-1}} + \frac{d\vec{C}_t}{d\vec{i}_{t}}\frac{d\vec{i}_t}{d\vec{h}_{t-1}} + \frac{d\vec{C}_t}{d\vec{\tilde{C}}_t}\frac{d\vec{\tilde{C}}_t}{d\vec{h}_{t-1}})<br>$$</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/RNN/">RNN</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/08/02/an-empirical-exploration-of-RNN-architectures/" data-title="An Empirical Exploration of RNN Architectures | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/08/01/attention-variants/"  title="Attention Variants">
+ <strong>NEXT:</strong><br/> 
+ <span>Attention Variants
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Search-Procedure"><span class="toc-number">1.</span> <span class="toc-text">The Search Procedure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Datasets"><span class="toc-number">2.</span> <span class="toc-text">Datasets</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Arithmetic"><span class="toc-number">2.1.</span> <span class="toc-text">Arithmetic</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XML-modelling"><span class="toc-number">2.2.</span> <span class="toc-text">XML modelling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Penn-Tree-Bank"><span class="toc-number">2.3.</span> <span class="toc-text">Penn Tree-Bank</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Music"><span class="toc-number">2.4.</span> <span class="toc-text">Music</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results"><span class="toc-number">3.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#About-LSTM"><span class="toc-number">4.</span> <span class="toc-text">About LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Resist-Vanishing-Gradient-Problem"><span class="toc-number">4.1.</span> <span class="toc-text">Resist Vanishing Gradient Problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LSTM’s-Trick"><span class="toc-number">4.2.</span> <span class="toc-text">LSTM’s Trick</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ablation-on-LSTM"><span class="toc-number">4.3.</span> <span class="toc-text">Ablation on LSTM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Appendix"><span class="toc-number">6.</span> <span class="toc-text">Appendix</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>3</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>3</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>2</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>11</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+

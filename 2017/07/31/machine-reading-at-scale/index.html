@@ -9,7 +9,7 @@
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="If I get my hand on the SQuAD dataset, I will only consider how to solve the problem. But Danqi Chen et al. thought out of the box,">
+    <meta name="description" content="Danqi Chen et al.[1] instead of focusing on only (P,Q,A) tasks, came up with a bigger problem which is machine reading at scale.">
     
     
     
@@ -73,7 +73,7 @@
     </p>
   <p class="article-time">
     <time datetime="2017-07-31T04:06:04.000Z" itemprop="datePublished">2017-31-07</time>
-    Updated:<time datetime="2017-07-31T01:06:19.000Z" itemprop="dateModified">2017-31-07</time>
+    Updated:<time datetime="2017-08-04T02:38:57.000Z" itemprop="dateModified">2017-04-08</time>
     
   </p>
 </header>
@@ -85,7 +85,7 @@
 		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Network-Model"><span class="toc-number">1.</span> <span class="toc-text">Neural Network Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">3.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>If I get my hand on the SQuAD dataset, I will only consider how to solve the problem. But Danqi Chen et al. thought out of the box, <a id="more"></a> and came up with a new and bigger problem which is machine reading at scale.</p>
+		<p>Danqi Chen et al.[1] instead of focusing on only (P,Q,A) tasks, came up with a bigger problem which is machine reading at scale.<a id="more"></a></p>
 <p>To accomplish the task of reading Wikipedia to answer open-domain questions, they combined a search component based on bigram hashing and TF-IDF matching with a multi-layer recurrent neural network model trained to detect answers in Wikipedia paragraphs. I only focus on the neural network model.</p>
 <h2 id="Neural-Network-Model"><a href="#Neural-Network-Model" class="headerlink" title="Neural Network Model"></a>Neural Network Model</h2><p>This model can be summaried as 1) Paragraph feature vector extraction 2) Paragraph encoding 3) Question encoding and 4) Prediction.</p>
 <p><strong>Paragraph feature vector extraction</strong>: The feature vector of each token in paragraph is comprised of the following parts:</p>
@@ -133,6 +133,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2017/08/01/attention-variants/" title="Attention Variants">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Attention Variants</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/2017/07/31/a-thorough-examination-of-CNN-Daily-Mail-dataset/"  title="A Thorough Examination of CNN/Daily Mail dataset">
@@ -166,7 +174,7 @@
 		
 			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
 		
-			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>3</sup></a></li>
 		
 			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
 		
@@ -180,7 +188,7 @@
 		
 			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>2</sup></a></li>
 		
-			<li><a href="/tags/summary/" title="summary">summary<sup>9</sup></a></li>
+			<li><a href="/tags/summary/" title="summary">summary<sup>11</sup></a></li>
 		
 			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
 		
@@ -191,7 +199,7 @@
   
   <div class="archiveslist">
     <p class="asidetitle"><a href="/archives">Archives</a></p>
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 

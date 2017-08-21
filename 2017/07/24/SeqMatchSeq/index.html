@@ -73,7 +73,7 @@
     </p>
   <p class="article-time">
     <time datetime="2017-07-24T00:06:04.000Z" itemprop="datePublished">2017-24-07</time>
-    Updated:<time datetime="2017-07-28T06:22:31.000Z" itemprop="dateModified">2017-28-07</time>
+    Updated:<time datetime="2017-07-31T03:19:36.000Z" itemprop="dateModified">2017-31-07</time>
     
   </p>
 </header>
@@ -82,7 +82,7 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLI-Task"><span class="toc-number">1.</span> <span class="toc-text">NLI Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-this-Model-Works-Better"><span class="toc-number">3.</span> <span class="toc-text">Why this Model Works Better</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLI-Task"><span class="toc-number">1.</span> <span class="toc-text">NLI Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">3.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">4.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
 		<p>This post introduces the paper “Learning Natural Language Inference with LSTM” [1]. <a id="more"></a>  This new neural model was proposed to deal with Natural Language Inference (NLI) task. </p>
@@ -98,7 +98,13 @@
 <p>$$<br> \vec{h}_{k}^{m} = \mbox{LSTM}( \vec{x}_{k}^{m}, \vec{h}_{k-1}^{m})<br>$$</p>
 <p>whose input is<br>$$<br>\vec{x}_{k}^{m} = [ \vec{a}_{k} , \vec{h}_{k}^{t} ]<br>$$</p>
 <p>To predict label y, the last state $\vec{h}_{N}^{m}$ is used.</p>
-<h2 id="Why-this-Model-Works-Better"><a href="#Why-this-Model-Works-Better" class="headerlink" title="Why this Model Works Better"></a>Why this Model Works Better</h2><p>The match-LSTM is able to remember important mismatches and forgets good matching results. If no important mismatch occurred, the final classifier will likely predict entailment by default.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>The authors attributed the fine performance to that the match-LSTM is able to remember important mismatches and forgets good matching results. If no important mismatch occurred, the final classifier will likely predict entailment by default.</p>
+<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><ul>
+<li>Adam optimization with $\beta_{1}$ set to 0.9 and  $\beta_{2}$ set to 0.999.</li>
+<li>The initial learning rate is set to be 0.001 with a decay ratio of 0.95 for each iteration.</li>
+<li>Batch size is set to be 30.</li>
+<li>The unseen word is approximated by average over surrounding words(4 on the left and 4 on the right)</li>
+</ul>
 <h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
 <li><strong>The model turned out to be more like Seq2Seq with attention model in [4] compared with the model in [3].</strong> In the view of Seq2Seq with attention, premise is encoded into memory for later query. During decoding, the attention and hypothesis hidden state are concatentated as new input.</li>
 </ul>
@@ -151,7 +157,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLI-Task"><span class="toc-number">1.</span> <span class="toc-text">NLI Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-this-Model-Works-Better"><span class="toc-number">3.</span> <span class="toc-text">Why this Model Works Better</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLI-Task"><span class="toc-number">1.</span> <span class="toc-text">NLI Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">3.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-number">4.</span> <span class="toc-text">Implementation Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">
@@ -167,7 +173,7 @@
 		
 			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
 		
-			<li><a href="/tags/RNN/" title="RNN">RNN<sup>1</sup></a></li>
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>3</sup></a></li>
 		
 			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
 		
@@ -181,7 +187,7 @@
 		
 			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>2</sup></a></li>
 		
-			<li><a href="/tags/summary/" title="summary">summary<sup>9</sup></a></li>
+			<li><a href="/tags/summary/" title="summary">summary<sup>11</sup></a></li>
 		
 			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
 		
@@ -192,7 +198,7 @@
   
   <div class="archiveslist">
     <p class="asidetitle"><a href="/archives">Archives</a></p>
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
