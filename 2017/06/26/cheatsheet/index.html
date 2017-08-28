@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Attention Variants | CN Yah</title>
+    <title>Markdown Cheatsheet | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI.">
+    <meta name="description" content="Markdown Cheatsheet to look up on.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/08/01/attention-variants/" title="Attention Variants" itemprop="url">Attention Variants</a>
+      <a href="/2017/06/26/cheatsheet/" title="Markdown Cheatsheet" itemprop="url">Markdown Cheatsheet</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-08-01T01:05:00.000Z" itemprop="datePublished">2017-01-08</time>
-    Updated:<time datetime="2017-08-02T08:06:05.000Z" itemprop="dateModified">2017-02-08</time>
+    <time datetime="2017-06-25T17:06:59.000Z" itemprop="datePublished">2017-26-06</time>
+    Updated:<time datetime="2017-07-10T01:00:38.000Z" itemprop="dateModified">2017-10-07</time>
     
   </p>
 </header>
@@ -82,34 +82,64 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
 		</div>
 		
-		<p>The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI. <a id="more"></a> It might be useful to compare some popular attention variants in NLP field. </p>
-<h2 id="Luong-attention-and-Bahdanau-attention"><a href="#Luong-attention-and-Bahdanau-attention" class="headerlink" title="Luong attention and Bahdanau attention"></a>Luong attention and Bahdanau attention</h2><p>Luong attention[1] and Bahdanau attention[2] are two popluar attention mechanisms. These two attention mechanisms are similar except:</p>
-<ol>
-<li>In Luong attention alignment at time step t is computed by using hidden state at time step t, $\vec{h}_t$ and all source hidden states, whereas in Bahdanau attention hidden state at time step t-1, $\vec{h}_{t-1}$ is used.</li>
-<li>To integrate context vector $\vec{c}_t$, Bahdanau attention chooses to concatenate it with hidden state $\vec{h}_{t-1}$ as the new hidden state which is fed to next step to generate $\vec{h}_{t}$ as well as predict $y_{t+1}$. Luong attention instead creates an independent RNN-like structure to take the concatenatation of  $\vec{c}_t$ and $\vec{h}_t$ as input and output $\vec{\tilde{h}}_t$ which serves to predict $y_{t}$ and add additional input features.</li>
-</ol>
-<p><img src="attention-mechanisms.png" alt="attention mechanisms"><br>Figure 1: Compare Luong attention and Bahdanau attention</p>
-<h2 id="Alignment-functions"><a href="#Alignment-functions" class="headerlink" title="Alignment functions"></a>Alignment functions</h2><p>From the view of the coverage of the attention, there are global attention that takes all source hidden states into account, local attention that focuses only a part of source hidden states. From the view of how to caculate the alignment, there are content-based appoarch that uses both source hidden states and current target hidden state and location-based appoarch that uses current target hidden state only.</p>
-<p><img src="alignments.png" alt="alignments"><br>Figure 2: Different alignment functions</p>
-<h2 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h2><p>Thang Luong et al.[1] examined different attention models (global, local-m, local-p) and different alignment functions (location, dot, general, concat). The result is in Figure 3. Their implementation concat does not yield good performances which they atrributed to that they simplified matrix $W_a$ to set the part that corresponds to $\vec{\tilde{h}}_t$ to identity (<strong>meaning?</strong>). They also observed that dot works well for the global attention and general is better for the local attention.</p>
-<p><img src="attentional-architectures.png" alt="attentional-architectures"><br>Figure 3 from [1]: Performances of different attentional models.</p>
-<p>Also they conducted experiments to examine the alignment quality of different attention models whose results are shown in Figure 4. The results suggested that AER and translation scores are not well correlated.</p>
-<p><img src="AER-scores.png" alt="AER-scores"><br>Figure 4 from [1]: Average Error Rate (AER) scores – results of various models on the RWTH English-German alignment data.</p>
-<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
-<li>The local-p is like location-based pointer network.</li>
-<li>In [1] their implementation concat does not yield good performances. In [3] it reported that general is better than concat. [3] believed that the bilinear term $W_{a}$ allowed us to compute a similarity more flexibly than with just a dot product. </li>
+		<p>Markdown Cheatsheet to look up on.</p>
+<a id="more"></a>
+<h1 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h1><hr>
+<h1 id="H1"><a href="#H1" class="headerlink" title="H1"></a>H1</h1><h3 id="H2"><a href="#H2" class="headerlink" title="H2"></a>H2</h3><h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ hexo new post POST</div><div class="line">$ hexo generate</div><div class="line">$ hexo clean</div><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<h1 id="Characters"><a href="#Characters" class="headerlink" title="Characters"></a>Characters</h1><hr>
+<p><s>Strikethrough (when enable html tag decode.)</s><br><em>Italic</em>      <em>Italic</em><br><strong>Emphasis</strong>  <strong>Emphasis</strong><br><strong><em>Emphasis Italic</em></strong> <strong><em>Emphasis Italic</em></strong></p>
+<p>Superscript: X<sub>2</sub>，Subscript: O<sup>2</sup></p>
+<h3 id="Format"><a href="#Format" class="headerlink" title="Format"></a>Format</h3><hr>
+<blockquote>
+<p>Blockquotes</p>
+</blockquote>
+<p><a href="http://localhost/" target="_blank" rel="external">Links</a></p>
+<p><code>quota</code> </p>
+<h3 id="Lists"><a href="#Lists" class="headerlink" title="Lists"></a>Lists</h3><hr>
+<ul>
+<li>Item A</li>
+<li>Item B</li>
+<li>Item C</li>
 </ul>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Thang Luong et al. Effective approaches to attention-based neural machine translation. 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014<br>[3] Danqi Chen et al. A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task. 2016</p>
+<ol>
+<li>Item A</li>
+<li>Item B</li>
+<li>Item C</li>
+</ol>
+<h3 id="Images"><a href="#Images" class="headerlink" title="Images"></a>Images</h3><hr>
+<p><img src="/img/logo.svg" alt=""></p>
+<h3 id="Tables"><a href="#Tables" class="headerlink" title="Tables"></a>Tables</h3><hr>
+<table>
+<thead>
+<tr>
+<th>First Header</th>
+<th>Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content Cell</td>
+<td>Content Cell</td>
+</tr>
+<tr>
+<td>Content Cell</td>
+<td>Content Cell </td>
+</tr>
+</tbody>
+</table>
+<h3 id="LaTeX"><a href="#LaTeX" class="headerlink" title="LaTeX"></a>LaTeX</h3><hr>
+<p>$$s_j^i =-\log(\dfrac{\exp{logits^i}}{\sum_{j=1}^V\exp{logits_j^i}})$$</p>
+<p>$$sin(\alpha)^{\theta}=\sum_{i=0}^{n}(x^i + \cos(f))$$</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/RNN/">RNN</a>
+  <span></span> <a href="/tags/notes/">notes</a>
   </div>
 
 
@@ -117,7 +147,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/08/01/attention-variants/" data-title="Attention Variants | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/06/26/cheatsheet/" data-title="Markdown Cheatsheet | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -127,21 +157,13 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/08/02/an-empirical-exploration-of-RNN-architectures/" title="An Empirical Exploration of RNN Architectures">
+ <a href="/2017/06/27/gated-recurrent-neural-networks/" title="Gated Recurrent Neural Networks">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  An Empirical Exploration of RNN Architectures</span>
+  Gated Recurrent Neural Networks</span>
 </a>
 </div>
 
-
-<div class="next">
-<a href="/2017/07/31/machine-reading-at-scale/"  title="Machine Reading at Scale">
- <strong>NEXT:</strong><br/> 
- <span>Machine Reading at Scale
-</span>
-</a>
-</div>
 
 </nav>
 
@@ -151,7 +173,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
   </div>
 
 <div id="asidepart">

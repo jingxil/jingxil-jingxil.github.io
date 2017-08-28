@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Attention Variants | CN Yah</title>
+    <title>Pointer Networks | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI.">
+    <meta name="description" content="This post introduces the Pointer Networks [1].">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/08/01/attention-variants/" title="Attention Variants" itemprop="url">Attention Variants</a>
+      <a href="/2017/07/17/pointer-networks/" title="Pointer Networks" itemprop="url">Pointer Networks</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-08-01T01:05:00.000Z" itemprop="datePublished">2017-01-08</time>
-    Updated:<time datetime="2017-08-02T08:06:05.000Z" itemprop="dateModified">2017-02-08</time>
+    <time datetime="2017-07-16T23:06:04.000Z" itemprop="datePublished">2017-17-07</time>
+    Updated:<time datetime="2017-07-28T06:22:16.000Z" itemprop="dateModified">2017-28-07</time>
     
   </p>
 </header>
@@ -82,34 +82,25 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI. <a id="more"></a> It might be useful to compare some popular attention variants in NLP field. </p>
-<h2 id="Luong-attention-and-Bahdanau-attention"><a href="#Luong-attention-and-Bahdanau-attention" class="headerlink" title="Luong attention and Bahdanau attention"></a>Luong attention and Bahdanau attention</h2><p>Luong attention[1] and Bahdanau attention[2] are two popluar attention mechanisms. These two attention mechanisms are similar except:</p>
-<ol>
-<li>In Luong attention alignment at time step t is computed by using hidden state at time step t, $\vec{h}_t$ and all source hidden states, whereas in Bahdanau attention hidden state at time step t-1, $\vec{h}_{t-1}$ is used.</li>
-<li>To integrate context vector $\vec{c}_t$, Bahdanau attention chooses to concatenate it with hidden state $\vec{h}_{t-1}$ as the new hidden state which is fed to next step to generate $\vec{h}_{t}$ as well as predict $y_{t+1}$. Luong attention instead creates an independent RNN-like structure to take the concatenatation of  $\vec{c}_t$ and $\vec{h}_t$ as input and output $\vec{\tilde{h}}_t$ which serves to predict $y_{t}$ and add additional input features.</li>
-</ol>
-<p><img src="attention-mechanisms.png" alt="attention mechanisms"><br>Figure 1: Compare Luong attention and Bahdanau attention</p>
-<h2 id="Alignment-functions"><a href="#Alignment-functions" class="headerlink" title="Alignment functions"></a>Alignment functions</h2><p>From the view of the coverage of the attention, there are global attention that takes all source hidden states into account, local attention that focuses only a part of source hidden states. From the view of how to caculate the alignment, there are content-based appoarch that uses both source hidden states and current target hidden state and location-based appoarch that uses current target hidden state only.</p>
-<p><img src="alignments.png" alt="alignments"><br>Figure 2: Different alignment functions</p>
-<h2 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h2><p>Thang Luong et al.[1] examined different attention models (global, local-m, local-p) and different alignment functions (location, dot, general, concat). The result is in Figure 3. Their implementation concat does not yield good performances which they atrributed to that they simplified matrix $W_a$ to set the part that corresponds to $\vec{\tilde{h}}_t$ to identity (<strong>meaning?</strong>). They also observed that dot works well for the global attention and general is better for the local attention.</p>
-<p><img src="attentional-architectures.png" alt="attentional-architectures"><br>Figure 3 from [1]: Performances of different attentional models.</p>
-<p>Also they conducted experiments to examine the alignment quality of different attention models whose results are shown in Figure 4. The results suggested that AER and translation scores are not well correlated.</p>
-<p><img src="AER-scores.png" alt="AER-scores"><br>Figure 4 from [1]: Average Error Rate (AER) scores – results of various models on the RWTH English-German alignment data.</p>
-<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
-<li>The local-p is like location-based pointer network.</li>
-<li>In [1] their implementation concat does not yield good performances. In [3] it reported that general is better than concat. [3] believed that the bilinear term $W_{a}$ allowed us to compute a similarity more flexibly than with just a dot product. </li>
-</ul>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Thang Luong et al. Effective approaches to attention-based neural machine translation. 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014<br>[3] Danqi Chen et al. A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task. 2016</p>
+		<p>This post introduces the Pointer Networks [1]. <a id="more"></a>  This new neural architecture tries to learn the conditional probability of an output sequence with elements that are discrete tokens corresponding to positions in an input sequence.</p>
+<h2 id="Applications"><a href="#Applications" class="headerlink" title="Applications"></a>Applications</h2><p>Pointer Networks work on the condition that the number of target classes in each step of the output depends on the length of the input.</p>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>Pointer Net in [1] is based on Seq2Seq model and uses attention mechanism [2] in a different way.  </p>
+<h3 id="Attention-Mechanism"><a href="#Attention-Mechanism" class="headerlink" title="Attention Mechanism"></a>Attention Mechanism</h3><p>Let us briefly review how content-based input attention works. Suppose lengths of the input and the output are n and m respectly, and $e_{j}$ and $d_{i}$  are the encoder state at time step j and decoder hidden state at time step i. Then at output time i, the attention mask at j-th encoder state $a^{i}_{j}$ is calculated as<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>a_{j}^{i}=softmax(u_{j}^{i}) \quad  j \in (1,…,n)<br>$$<br>Then weighted encoder hidden state and decoder hidden state are contatenated and used as the new decoder hidden state.<br>$$<br>d_{i}^{‘} = \sum_{j=1}^{n} a_{j}^{i}e_{j} \<br>$$<br>$$<br>d_{i}^{new}  = [d_{i}^{‘},d_{i} ]<br>$$</p>
+<h3 id="Pointer-Net"><a href="#Pointer-Net" class="headerlink" title="Pointer Net"></a>Pointer Net</h3><p>Pointer Net seems to just change the meaning of attention mechanism. It is like “Well, now $a^{i}_{j}$ is the probability rather than the attention weight”. So, the equations exactly the same as above except the name:<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>P(w_{i}|w_{1},w_{2},…,w_{i-1},\theta)=softmax(u_{i})<br>$$<br>where the probability means which element of the input sequence should be picked as the output at time step i given all previous output.</p>
+<p>Figure 1 below demonstrates the differences between Seq2Seq and Pointer Net. As we can see, the main difference lies on the possible outcomes of  Seq2Seq are all values in dataset while Pointer Net’s are all values from current input.</p>
+<p><img src="differences.png" alt="differences between Seq2Seq and Pointer Net"></p>
+<p>Figure 1 is from [1].</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Oriol Vinyals et al. Pointer Networks, 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/RNN/">RNN</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a>
   </div>
 
 
@@ -117,7 +108,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/08/01/attention-variants/" data-title="Attention Variants | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/17/pointer-networks/" data-title="Pointer Networks | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -127,18 +118,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/08/02/an-empirical-exploration-of-RNN-architectures/" title="An Empirical Exploration of RNN Architectures">
+ <a href="/2017/07/17/collections-readings/" title="Collections of Readings">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  An Empirical Exploration of RNN Architectures</span>
+  Collections of Readings</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2017/07/31/machine-reading-at-scale/"  title="Machine Reading at Scale">
+<a href="/2017/07/10/learning-phrase-representations-using-RNN/"  title="Learning Phrase Representations Using RNN">
  <strong>NEXT:</strong><br/> 
- <span>Machine Reading at Scale
+ <span>Learning Phrase Representations Using RNN
 </span>
 </a>
 </div>
@@ -151,7 +142,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">

@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Attention Variants | CN Yah</title>
+    <title>Collections of Projects | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI.">
+    <meta name="description" content="A collection of projects.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/08/01/attention-variants/" title="Attention Variants" itemprop="url">Attention Variants</a>
+      <a href="/2017/07/24/collections-projects/" title="Collections of Projects" itemprop="url">Collections of Projects</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-08-01T01:05:00.000Z" itemprop="datePublished">2017-01-08</time>
-    Updated:<time datetime="2017-08-02T08:06:05.000Z" itemprop="dateModified">2017-02-08</time>
+    <time datetime="2017-07-23T23:06:04.000Z" itemprop="datePublished">2017-24-07</time>
+    Updated:<time datetime="2017-07-28T06:48:36.000Z" itemprop="dateModified">2017-28-07</time>
     
   </p>
 </header>
@@ -82,34 +82,21 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Word-Vectors"><span class="toc-number">1.</span> <span class="toc-text">Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rasa-NLU"><span class="toc-number">2.</span> <span class="toc-text">Rasa NLU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NLG-EVAL"><span class="toc-number">3.</span> <span class="toc-text">NLG-EVAL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MITE"><span class="toc-number">4.</span> <span class="toc-text">MITE</span></a></li></ol>
 		</div>
 		
-		<p>The Attention Mechanism has proved itself to be one necessary component of RNN to deal with tasks like NMT, MC, QA and NLI. <a id="more"></a> It might be useful to compare some popular attention variants in NLP field. </p>
-<h2 id="Luong-attention-and-Bahdanau-attention"><a href="#Luong-attention-and-Bahdanau-attention" class="headerlink" title="Luong attention and Bahdanau attention"></a>Luong attention and Bahdanau attention</h2><p>Luong attention[1] and Bahdanau attention[2] are two popluar attention mechanisms. These two attention mechanisms are similar except:</p>
-<ol>
-<li>In Luong attention alignment at time step t is computed by using hidden state at time step t, $\vec{h}_t$ and all source hidden states, whereas in Bahdanau attention hidden state at time step t-1, $\vec{h}_{t-1}$ is used.</li>
-<li>To integrate context vector $\vec{c}_t$, Bahdanau attention chooses to concatenate it with hidden state $\vec{h}_{t-1}$ as the new hidden state which is fed to next step to generate $\vec{h}_{t}$ as well as predict $y_{t+1}$. Luong attention instead creates an independent RNN-like structure to take the concatenatation of  $\vec{c}_t$ and $\vec{h}_t$ as input and output $\vec{\tilde{h}}_t$ which serves to predict $y_{t}$ and add additional input features.</li>
-</ol>
-<p><img src="attention-mechanisms.png" alt="attention mechanisms"><br>Figure 1: Compare Luong attention and Bahdanau attention</p>
-<h2 id="Alignment-functions"><a href="#Alignment-functions" class="headerlink" title="Alignment functions"></a>Alignment functions</h2><p>From the view of the coverage of the attention, there are global attention that takes all source hidden states into account, local attention that focuses only a part of source hidden states. From the view of how to caculate the alignment, there are content-based appoarch that uses both source hidden states and current target hidden state and location-based appoarch that uses current target hidden state only.</p>
-<p><img src="alignments.png" alt="alignments"><br>Figure 2: Different alignment functions</p>
-<h2 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h2><p>Thang Luong et al.[1] examined different attention models (global, local-m, local-p) and different alignment functions (location, dot, general, concat). The result is in Figure 3. Their implementation concat does not yield good performances which they atrributed to that they simplified matrix $W_a$ to set the part that corresponds to $\vec{\tilde{h}}_t$ to identity (<strong>meaning?</strong>). They also observed that dot works well for the global attention and general is better for the local attention.</p>
-<p><img src="attentional-architectures.png" alt="attentional-architectures"><br>Figure 3 from [1]: Performances of different attentional models.</p>
-<p>Also they conducted experiments to examine the alignment quality of different attention models whose results are shown in Figure 4. The results suggested that AER and translation scores are not well correlated.</p>
-<p><img src="AER-scores.png" alt="AER-scores"><br>Figure 4 from [1]: Average Error Rate (AER) scores – results of various models on the RWTH English-German alignment data.</p>
-<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
-<li>The local-p is like location-based pointer network.</li>
-<li>In [1] their implementation concat does not yield good performances. In [3] it reported that general is better than concat. [3] believed that the bilinear term $W_{a}$ allowed us to compute a similarity more flexibly than with just a dot product. </li>
-</ul>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Thang Luong et al. Effective approaches to attention-based neural machine translation. 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014<br>[3] Danqi Chen et al. A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task. 2016</p>
+		<p>A collection of projects.<br><a id="more"></a></p>
+<h2 id="Word-Vectors"><a href="#Word-Vectors" class="headerlink" title="Word Vectors"></a>Word Vectors</h2><p>This <a href="http://wordvectors.org/demo.php" target="_blank" rel="external">site</a> collected many pre-trained word vectors and provided a way to evaluate. </p>
+<h2 id="Rasa-NLU"><a href="#Rasa-NLU" class="headerlink" title="Rasa NLU"></a>Rasa NLU</h2><p><a href="https://github.com/RasaHQ/rasa_nlu" target="_blank" rel="external">Rasa NLU (Natural Language Understanding)</a> is a tool for intent classification and entity extraction.</p>
+<h2 id="NLG-EVAL"><a href="#NLG-EVAL" class="headerlink" title="NLG-EVAL"></a>NLG-EVAL</h2><p><a href="https://github.com/Maluuba/nlg-eval" target="_blank" rel="external">NLG-EVAL</a> is a project aimed to provide various unsupervised automated metrics for NLG (Natural Language Generation).</p>
+<h2 id="MITE"><a href="#MITE" class="headerlink" title="MITE"></a>MITE</h2><p>MIT Information Extraction provides the ability to perform <a href="http://blog.dlib.net/2014/04/mitie-completely-free-and-state-of-art.html" target="_blank" rel="external">named entity extraction</a> and <a href="http://blog.dlib.net/2014/07/mitie-v02-released-now-includes-python.html" target="_blank" rel="external">binary relation detection</a> as well as tools for training custom extractors and relation detectors.</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/RNN/">RNN</a>
+  <span></span> <a href="/tags/collections/">collections</a>
   </div>
 
 
@@ -117,7 +104,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/08/01/attention-variants/" data-title="Attention Variants | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/07/24/collections-projects/" data-title="Collections of Projects | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -127,18 +114,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/08/02/an-empirical-exploration-of-RNN-architectures/" title="An Empirical Exploration of RNN Architectures">
+ <a href="/2017/07/24/SeqMatchSeq/" title="SeqMatchSeq">
   <strong>PREVIOUS:</strong><br/>
   <span>
-  An Empirical Exploration of RNN Architectures</span>
+  SeqMatchSeq</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2017/07/31/machine-reading-at-scale/"  title="Machine Reading at Scale">
+<a href="/2017/07/24/implement pointer-networks/"  title="Implement Pointer Networks in Tensorflow">
  <strong>NEXT:</strong><br/> 
- <span>Machine Reading at Scale
+ <span>Implement Pointer Networks in Tensorflow
 </span>
 </a>
 </div>
@@ -151,7 +138,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Luong-attention-and-Bahdanau-attention"><span class="toc-number">1.</span> <span class="toc-text">Luong attention and Bahdanau attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Alignment-functions"><span class="toc-number">2.</span> <span class="toc-text">Alignment functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Evaluation"><span class="toc-number">3.</span> <span class="toc-text">Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Word-Vectors"><span class="toc-number">1.</span> <span class="toc-text">Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rasa-NLU"><span class="toc-number">2.</span> <span class="toc-text">Rasa NLU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NLG-EVAL"><span class="toc-number">3.</span> <span class="toc-text">NLG-EVAL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MITE"><span class="toc-number">4.</span> <span class="toc-text">MITE</span></a></li></ol>
   </div>
 
 <div id="asidepart">
