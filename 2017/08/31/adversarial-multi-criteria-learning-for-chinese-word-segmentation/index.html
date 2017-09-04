@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Learning Phrase Representations Using RNN | CN Yah</title>
+    <title>Adversarial Multi-Criteria Learning for Chinese Word Segmentation | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="This post is a review of the work [1] of  Kyunghyun Cho et al.">
+    <meta name="description" content="It is interesting to boost performance by exploiting common knowledge shared by various Chinese word segmentation(CWS) criteria. This paper proposed a">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/10/learning-phrase-representations-using-RNN/" title="Learning Phrase Representations Using RNN" itemprop="url">Learning Phrase Representations Using RNN</a>
+      <a href="/2017/08/31/adversarial-multi-criteria-learning-for-chinese-word-segmentation/" title="Adversarial Multi-Criteria Learning for Chinese Word Segmentation" itemprop="url">Adversarial Multi-Criteria Learning for Chinese Word Segmentation</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-09T23:06:04.000Z" itemprop="datePublished">2017-10-07</time>
-    Updated:<time datetime="2017-07-17T07:09:23.000Z" itemprop="dateModified">2017-17-07</time>
+    <time datetime="2017-08-31T00:23:04.000Z" itemprop="datePublished">2017-31-08</time>
+    Updated:<time datetime="2017-09-03T01:18:39.000Z" itemprop="dateModified">2017-03-09</time>
     
   </p>
 </header>
@@ -82,50 +82,40 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Model"><span class="toc-number">2.</span> <span class="toc-text">The Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Enhance-Phrase-based-Translation-Model"><span class="toc-number">3.</span> <span class="toc-text">Enhance Phrase-based Translation Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phrase-Representations"><span class="toc-number">4.</span> <span class="toc-text">Phrase Representations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Notes"><span class="toc-number">5.</span> <span class="toc-text">Notes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-Overview"><span class="toc-number">1.</span> <span class="toc-text">Model Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#General-Neural-Model-for-CWS"><span class="toc-number">2.</span> <span class="toc-text">General Neural Model for CWS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Combine-Shared-and-Task-Specific-Features"><span class="toc-number">3.</span> <span class="toc-text">Combine Shared and Task Specific Features</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Adversarial-Training-for-Shared-Features"><span class="toc-number">4.</span> <span class="toc-text">Adversarial Training for Shared Features</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Objective-Functions"><span class="toc-number">5.</span> <span class="toc-text">Objective Functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-Details"><span class="toc-number">6.</span> <span class="toc-text">Training Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Conclusions"><span class="toc-number">7.</span> <span class="toc-text">Experiment Conclusions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">8.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>This post is a review of the work [1] of  Kyunghyun Cho et al. </p>
-<a id="more"></a>
-<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>In Kyunghyun Cho et al.’s work [1], they proposed a RNN Encoder-Decoder model which can be adapted to</p>
-<ol>
-<li>Cast a linguistic phrase to a dense continuous vector representation.</li>
-<li>Score a given pair of input and output sequences to enhance the performance of a statistical machine translation (MT) system. </li>
-<li>Generate a target sequence given a input sequence. </li>
-</ol>
-<p>In this work, the focus is mainly on the second type of usage. But I am more interested in the first kind of usage. I am going to briefly go through how RNN Encoder-Decoder model improves the performance of MT system and demonstrate the semantically and syntactically meaningful phrase vector representations  RNN Encoder-Decoder model can learn.</p>
-<h2 id="The-Model"><a href="#The-Model" class="headerlink" title="The Model"></a>The Model</h2><p>I assume readers are familiar with the Seq2Seq model which was proposed by Ilya Sutskever et al. [2] based on the model here. The major differences are</p>
-<ol>
-<li>Seq2Seq model reverses the order of input sequence while RNN Encoder-Decoder model is not.</li>
-<li>Seq2Seq model uses LSTM as its RNN unit while the model here uses GRU. (introduction about LSTM and GRU can be found <a href="http://cnyah.com/2017/06/26/gated-recurrent-neural-networks/">here</a>)</li>
-</ol>
-<h2 id="Enhance-Phrase-based-Translation-Model"><a href="#Enhance-Phrase-based-Translation-Model" class="headerlink" title="Enhance Phrase-based Translation Model"></a>Enhance Phrase-based Translation Model</h2><p>RNN  Encoder-Decoder is trained on bilingual corpora where the  frequencies of each phrase pair are ignored. Due to the reasons: 1) reduce the computetional expense 2) make sure the RNN Encoder-Decoder does not simply learn to rank the phrase pairs according to their numbers of occurances. 3) ensure most of capacity of the model is focused toward learning linguistic regularities.</p>
-<p>Trained RNN Encoder–Decoder adds a new score for each phrase pair to the existing phrase table where the score is simply the probability p( <strong>o</strong> | <strong>i</strong> ) here. The new score as a feature is used by existing tuning algorithms.</p>
-<p>Compared with baseline system Moses [3], the translation model adding the feature from RNN  performances better. Interestingly, According to Figure 1, despite many phrase pairs were scored similarly by both translation model and the RNN Encoder–Decoder, there were as many pairs that were scored radically different. They accounted it for that the RNN ignores the frequencies of phrase pairs from the corpus.</p>
-<p><img src="figure-1.png" alt="figure-1"></p>
-<p>Figure 1 is from [1].</p>
-<h2 id="Phrase-Representations"><a href="#Phrase-Representations" class="headerlink" title="Phrase Representations"></a>Phrase Representations</h2><p>Since the model is first to encode the input into length-fixed vector, this vector is potientially capable to represent the input. In K. Cho et al.’s experienment [1], this vector is 1000-dimensional. Figures below demonstrate both semantic and syntactic structures of the phrases is captured by RNN Encoder-Decoder. </p>
-<p><img src="word-representations-1.png" alt="word-representations-1"></p>
-<p>Figure 2: it is from [1] and shows the relative distances between learned word representations.</p>
-<p><img src="phrase-representations-1.png" alt="phrase-representations-1"></p>
-<p>Figure 3: it is from [1] and shows the relative distances between learned phrase representations.</p>
-<p><img src="phrase-representations-2.png" alt="phrase-representations-2"></p>
-<p>Figure 4: it is from [1] and shows the relative distances between learned phrase representations. </p>
-<h2 id="Notes"><a href="#Notes" class="headerlink" title="Notes"></a>Notes</h2><ul>
-<li>Instead of recovering input as Word2Vec approaches do, RNN Encoder-Decoder here builds word vectors by taking English phrases as input and producing corresponding French phrases.</li>
-<li>They mentioned that GRU can be regarded as a variant of a leaky-integration unit.</li>
-<li>They were not able to get meaningful result with an oft-used tanh unit without any gating.</li>
-<li>I personally feel like that using bilingual corpus can accelerate learning semantics of words. </li>
-<li>I wonder whether it is possible to segment Chinese words using similar approach on English-Chinese corpora.</li>
+		<p>It is interesting to boost performance by exploiting common knowledge shared by various Chinese word segmentation(CWS) criteria. This paper proposed adversarial multi-criteria learning for CWS by integrating shared knowledge from heterogeneous segmentation criteria.</p>
+<h2 id="Model-Overview"><a href="#Model-Overview" class="headerlink" title="Model Overview"></a>Model Overview</h2><p>Various CWS criteria are supposed to bear some similarities. This can be modeled by shared features. To keep shared features criteria-invariant, adversarial strategy is in place. In Figure 1, yellow rectangle denotes shared feature layer, green rectangle represents private feature layer and green circle indicates conditional random field(CRF).</p>
+<p><img src="model-overview.png" alt="model-overview"><br>Figure 1. Model overview</p>
+<h2 id="General-Neural-Model-for-CWS"><a href="#General-Neural-Model-for-CWS" class="headerlink" title="General Neural Model for CWS"></a>General Neural Model for CWS</h2><p>CWS problem can be regarded as a character based sequence labeling problem in which each character is labeled as one of $\phi = \{B,M,E,S\}$. Given sequence $X=\{x_1,x_2,…,x_n\}$, the aim is to find $\hat{Y}=\{y_1,y_2,…,y_n\}$ which maximizes<br>$$<br>\hat{Y} = \mbox{argmax p} (Y|X)<br>$$<br>As in Figure 2, neural CWS model usually can be summarized as 1) embed 2)encode 3)predict. In this paper, bi-LSTM is used to encode and CRF is used to predict. Below is how to use CRF to infer tags:<br>$$\begin{eqnarray}<br>p(Y|X) = \frac{1}{Z(Y)} \prod_{i=2}^{n}\psi(X,i,y_{i-1}, y_{i}) \\<br>\psi(X,i,y,y^`) = \exp(s(X,i)_y + b_{yy^`}) \\<br>s(X,i) = W_s^T\vec{h}_i+\vec{b}_s  \\<br>\end{eqnarray}$$<br><img src="general-neural-CWS.png" alt="general-neural-CWS"><br>Figure 2. Neural CWS model</p>
+<h2 id="Combine-Shared-and-Task-Specific-Features"><a href="#Combine-Shared-and-Task-Specific-Features" class="headerlink" title="Combine Shared and Task Specific Features"></a>Combine Shared and Task Specific Features</h2><p>Based how to combine shared and task specific features, there are 3 kinds of structures as in Figure 3.<br><img src="model-variants.png" alt="model-variants"><br>Figure 3. Model variants</p>
+<h2 id="Adversarial-Training-for-Shared-Features"><a href="#Adversarial-Training-for-Shared-Features" class="headerlink" title="Adversarial Training for Shared Features"></a>Adversarial Training for Shared Features</h2><p>In order to guarantee shared Features are criteria-invariant, a discriminator is set up to infer the criterion by look at shared features, and a generator is used to decide how shared features should look like. The harder for the discriminator to tell the criterion the better shared features picked by the generator.</p>
+<h2 id="Objective-Functions"><a href="#Objective-Functions" class="headerlink" title="Objective Functions"></a>Objective Functions</h2><p>Firstly, conditional probability of $p(Y|X)$ needs to be maximumed , that is<br>$$<br>O_{seg}(\Theta^m, \Theta^s) = \sum^{M}_{m=1}\sum^{N_m}_{i=1} \log p(Y_{i}^{(m)}|X_{i}^{(m)};\Theta^m, \Theta^s)<br>$$  </p>
+<p>Then, the discriminator is to maximize the cross entropy of predicted criterion and true criterion distribution. In other words, every data sample is decomposed to shared features and private features and discriminator adjusts itself to the best to infer which dataset the sample comes from by looking only at shared features.<br>$$<br>O_{adv}^d(\Theta^d) = \sum^{M}_{m=1}\sum^{N_m}_{i=1} \log p(m|X_{i}^{(m)};\Theta^d, \Theta^s)<br>$$  </p>
+<p>While the generator aims to maximize the entropy of predicted criterion distribution so that make inferring criterion hard for discriminator.<br>$$<br>O_{adv}^g(\Theta^s) = \sum^{M}_{m=1}\sum^{N_m}_{i=1} H(p(m|X_{i}^{(m)};\Theta^d, \Theta^s))<br>$$<br>where $H(\cdot)$ is an entropy of distribution instead of negative cross-entropy like in [2]. By combining them, final objective function is obtained<br>$$<br>O(\Theta, D) = O_{seg}(\Theta^m, \Theta^s) + O_{adv}^d(\Theta^d) + \lambda O_{adv}^g(\Theta^s)<br>$$</p>
+<h2 id="Training-Details"><a href="#Training-Details" class="headerlink" title="Training Details"></a>Training Details</h2><ul>
+<li>When using adversarial strategy, after training 2400 epochs (each epoch only trains on eight batches from different corpora),  $O_{seg}(\Theta^m, \Theta^s)$ is optimized with $\Theta^s$ fixed until convergence (early stop strategy).</li>
+<li>Embedding size and hidden size both are 100.</li>
+<li>Initial learning rate is set to 0.01.</li>
+<li>Loss weight coefficient $\lambda$ is set to 0.05.</li>
+<li>Keeping 80% inputs on embedding layer.</li>
+<li>Batch sizes of AS and MSR datasets are 512 and 256 respectively, and 128 for remains.</li>
 </ul>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Kyunghyun Cho et al. Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, 2014<br>[2] Ilya Sutskever et al. Sequence to Sequence Learning with Neural Networks, 2014<br>[3] Moses, <a href="http://www.statmt.org/moses/" target="_blank" rel="external">http://www.statmt.org/moses/</a></p>
+<h2 id="Experiment-Conclusions"><a href="#Experiment-Conclusions" class="headerlink" title="Experiment Conclusions"></a>Experiment Conclusions</h2><p>After experimenting on eight prevalent CWS datasets from SIG-HAN2005 and SIGHAN2008. Below is concluded:</p>
+<ol>
+<li>Multi-criteria learning boosts performance and adversarial training enhances performance further.</li>
+<li>Adversarial strategy is effective to prevent criterion specific features from creeping into shared space.</li>
+<li>The shared layers can be transferred to the other related tasks.</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Xinchi Chen et al. Adversarial Multi-Criteria Learning for Chinese Word Segmentation. ACL 2017.<br>[2] Yaroslav Ganin et al. Domain-adversarial training of neural networks. Journal of Machine Learning Research. 2016</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/word-embeddings/">word embeddings</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/POS-tagging/">POS tagging</a>
   </div>
 
 
@@ -133,7 +123,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/10/learning-phrase-representations-using-RNN/" data-title="Learning Phrase Representations Using RNN | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/08/31/adversarial-multi-criteria-learning-for-chinese-word-segmentation/" data-title="Adversarial Multi-Criteria Learning for Chinese Word Segmentation | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -142,19 +132,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/07/17/collections-readings/" title="Collections of Readings">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  Collections of Readings</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2017/07/10/the-evolution-of-vector-word-representations/"  title="The Evolution of Vector Word Representations">
+<a href="/2017/08/26/from-naive-bayes-to-linear-chain-CRF/"  title="From Naive Bayes to Linear-chain CRF">
  <strong>NEXT:</strong><br/> 
- <span>The Evolution of Vector Word Representations
+ <span>From Naive Bayes to Linear-chain CRF
 </span>
 </a>
 </div>
@@ -167,7 +149,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Model"><span class="toc-number">2.</span> <span class="toc-text">The Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Enhance-Phrase-based-Translation-Model"><span class="toc-number">3.</span> <span class="toc-text">Enhance Phrase-based Translation Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phrase-Representations"><span class="toc-number">4.</span> <span class="toc-text">Phrase Representations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Notes"><span class="toc-number">5.</span> <span class="toc-text">Notes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-Overview"><span class="toc-number">1.</span> <span class="toc-text">Model Overview</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#General-Neural-Model-for-CWS"><span class="toc-number">2.</span> <span class="toc-text">General Neural Model for CWS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Combine-Shared-and-Task-Specific-Features"><span class="toc-number">3.</span> <span class="toc-text">Combine Shared and Task Specific Features</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Adversarial-Training-for-Shared-Features"><span class="toc-number">4.</span> <span class="toc-text">Adversarial Training for Shared Features</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Objective-Functions"><span class="toc-number">5.</span> <span class="toc-text">Objective Functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-Details"><span class="toc-number">6.</span> <span class="toc-text">Training Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Conclusions"><span class="toc-number">7.</span> <span class="toc-text">Experiment Conclusions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">8.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">
