@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Pointer Networks | CN Yah</title>
+    <title>Coverage-based Attention | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="This post introduces the Pointer Networks [1].">
+    <meta name="description" content="Zhaopeng Tu et al.[1] proposed coverage-based Attention to reduce over-translation and under-translation problems.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/17/pointer-networks/" title="Pointer Networks" itemprop="url">Pointer Networks</a>
+      <a href="/2017/09/09/coverage-based-attention/" title="Coverage-based Attention" itemprop="url">Coverage-based Attention</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-16T23:06:04.000Z" itemprop="datePublished">2017-17-07</time>
-    Updated:<time datetime="2017-07-28T06:22:16.000Z" itemprop="dateModified">2017-28-07</time>
+    <time datetime="2017-09-09T01:23:09.000Z" itemprop="datePublished">2017-09-09</time>
+    Updated:<time datetime="2017-09-12T02:15:33.000Z" itemprop="dateModified">2017-12-09</time>
     
   </p>
 </header>
@@ -82,18 +82,34 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Coverage-Model-in-SMT"><span class="toc-number">1.</span> <span class="toc-text">Coverage Model in SMT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apply-Coverage-Model-to-NMT"><span class="toc-number">2.</span> <span class="toc-text">Apply Coverage Model to NMT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linguistic-Coverage"><span class="toc-number">2.1.</span> <span class="toc-text">Linguistic Coverage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Partial-Neural-Coverage"><span class="toc-number">2.2.</span> <span class="toc-text">Partial Neural Coverage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Neural-Coverage"><span class="toc-number">2.3.</span> <span class="toc-text">Neural Coverage</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-Setting"><span class="toc-number">3.</span> <span class="toc-text">Training Setting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results"><span class="toc-number">4.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>This post introduces the Pointer Networks [1]. <a id="more"></a>  This new neural architecture tries to learn the conditional probability of an output sequence with elements that are discrete tokens corresponding to positions in an input sequence.</p>
-<h2 id="Applications"><a href="#Applications" class="headerlink" title="Applications"></a>Applications</h2><p>Pointer Networks work on the condition that the number of target classes in each step of the output depends on the length of the input.</p>
-<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>Pointer Net in [1] is based on Seq2Seq model and uses attention mechanism [2] in a different way.  </p>
-<h3 id="Attention-Mechanism"><a href="#Attention-Mechanism" class="headerlink" title="Attention Mechanism"></a>Attention Mechanism</h3><p>Let us briefly review how content-based input attention works. Suppose lengths of the input and the output are n and m respectly, and $e_{j}$ and $d_{i}$  are the encoder state at time step j and decoder hidden state at time step i. Then at output time i, the attention mask at j-th encoder state $a^{i}_{j}$ is calculated as<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>a_{j}^{i}=softmax(u_{j}^{i}) \quad  j \in (1,…,n)<br>$$<br>Then weighted encoder hidden state and decoder hidden state are contatenated and used as the new decoder hidden state.<br>$$<br>d_{i}^{‘} = \sum_{j=1}^{n} a_{j}^{i}e_{j} \<br>$$<br>$$<br>d_{i}^{new}  = [d_{i}^{‘},d_{i} ]<br>$$</p>
-<h3 id="Pointer-Net"><a href="#Pointer-Net" class="headerlink" title="Pointer Net"></a>Pointer Net</h3><p>Pointer Net seems to just change the meaning of attention mechanism. It is like “Well, now $a^{i}_{j}$ is the probability rather than the attention weight”. So, the equations exactly the same as above except the name:<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>P(w_{i}|w_{1},w_{2},…,w_{i-1},\theta)=softmax(u_{i})<br>$$<br>where the probability means which element of the input sequence should be picked as the output at time step i given all previous output.</p>
-<p>Figure 1 below demonstrates the differences between Seq2Seq and Pointer Net. As we can see, the main difference lies on the possible outcomes of  Seq2Seq are all values in dataset while Pointer Net’s are all values from current input.</p>
-<p><img src="differences.png" alt="differences between Seq2Seq and Pointer Net"></p>
-<p>Figure 1 is from [1].</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Oriol Vinyals et al. Pointer Networks, 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014</p>
+		<p>Zhaopeng Tu et al.[1] proposed coverage-based Attention to reduce over-translation and under-translation problems. <a id="more"></a> They used a coverage vector to keep track of the attention history which pushes model to consider more about untranslated source words.</p>
+<h2 id="Coverage-Model-in-SMT"><a href="#Coverage-Model-in-SMT" class="headerlink" title="Coverage Model in SMT"></a>Coverage Model in SMT</h2><p>Coverage model in SMT takes advantage of past alignment information. For example, if a source word has been translated, it is less likely to be translated once more. If in a model translated words are not allowed to be translated again, it is called <strong>hard coverage</strong>.</p>
+<h2 id="Apply-Coverage-Model-to-NMT"><a href="#Apply-Coverage-Model-to-NMT" class="headerlink" title="Apply Coverage Model to NMT"></a>Apply Coverage Model to NMT</h2><p>The most natural way to model coverage is using coverage vector for each source word, which is updated after every step. Formally, the coverage vector $\vec{c}_{i,j}$ is defined as<br>$$<br>\vec{c}_{i,j} = g(\vec{c}_{i-1,j},\vec{\alpha}_{i,j}, \Phi(\vec{h}_j), \psi)<br>$$<br>where $g()$ is update function, $\vec{c}_{i,j}$ is the coverage vector at timestep $i$ on $\vec{h}_j$, $\vec{\alpha}_{i,j}$ is the alignment at timestep $i$ on $\vec{h}_j$, $\Phi(\vec{h}_j)$ is a word-specific feature and $\psi$ are auxiliary inputs.</p>
+<p>After coverage vector $\vec{c}_{i,j}$ is obtained, the attention model is rewrited to include the coverage vector. That is<br>$$<br>\alpha_{i,j} = align(\vec{t}_{i-1},\vec{h}_j,\vec{c}_{i-1,j})<br>$$ </p>
+<h3 id="Linguistic-Coverage"><a href="#Linguistic-Coverage" class="headerlink" title="Linguistic Coverage"></a>Linguistic Coverage</h3><p>In NMT, every source words contributes to the translation of every target words. Hence, all contributions of a source word are cumulated to indicate its coverage. The model is forced to focus less on source words with larger coverage. from this linguistic prospective, the coverage is<br>$$<br>\vec{c}_{i,j} = \vec{c}_{i-1,j} + \frac{1}{\Phi_j}\vec{\alpha}_{i,j} = \frac{1}{\Phi_j}\sum_{k=1}^{i}\vec{\alpha}_{k,j}<br>$$<br>where $\Phi_j$ is a pre-defined value indicating the number of target words $x_j$ is expected to generate. It is impractical to pre-define the exact $\Phi$ for every source values. However, it is a need-to. Because there exists widely that a source word are focused at several times.</p>
+<h3 id="Partial-Neural-Coverage"><a href="#Partial-Neural-Coverage" class="headerlink" title="Partial Neural Coverage"></a>Partial Neural Coverage</h3><p>Everything that can not be mannually set can be learned. Hence, $\Phi_j$ learned during training is defined as<br>$$<br>\Phi_j = N\sigma(U\vec{h}_j)<br>$$</p>
+<h3 id="Neural-Coverage"><a href="#Neural-Coverage" class="headerlink" title="Neural Coverage"></a>Neural Coverage</h3><p>Using Neural Coverage is to stuff all inputs in a neuron. The form is<br>$$<br>\vec{c}_{i,j} = f(\vec{c}_{i-1,j},\vec{\alpha}_{i,j}, \vec{h}_j, \vec{t}_i)<br>$$<br>where $\vec{h}_j$ is the context at position j and $\vec{t}_i$ is the hidden state at timestep i. In their preliminary experiments, considering more inputs does not always lead to better translation quality.</p>
+<h2 id="Training-Setting"><a href="#Training-Setting" class="headerlink" title="Training Setting"></a>Training Setting</h2><ul>
+<li>Used LDC corpora as training set(27.9M Chinese words and 34.5M English words), NIST 2002 as dev set, and  NIST 2005, 2006 and 2008 as test sets.</li>
+<li>Limited the source and target vocabularies to the most frequent 30K words in Chinese and English.</li>
+<li>N=2 in Partial Neural Coverage.</li>
+<li>Trim sentences of length more than 80 words.</li>
+<li>Word embedding dimension is 620.</li>
+<li>The size of a hidden layer is 1000.</li>
+</ul>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><p>Table 1. Case-insensitive 4-gram NIST BLEU scores of models<br><img src="translation-quality.png" alt="translation-quality"></p>
+<p>Table 2. Subjective evaluation of translation adequacy and fluency. The numbers in the last two columns denote the percentages of source words are under-translated and over-translated, respectively.<br><img src="subjective-evaluation.png" alt="subjective-evaluation"></p>
+<p>Table 3. Evaluation of alignment quality<br><img src="alignment-quality.png" alt="alignment-quality"></p>
+<p>Figure 1. Effects on Long Sentences<br><img src="various-length-sencences.png" alt="various-length-sencences"></p>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
+<li>I personally think $\Phi_j$ indicates how much source words $x_j$ can contribute.</li>
+<li>Partial Neural Coverage is so like local attention.</li>
+<li>Just a guess. Using $\vec{w}$ instead of $\vec{h}$ might help.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Zhaopeng Tu et al. Modeling Coverage for Neural Machine Translation. ACL 2016. </p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -108,7 +124,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/17/pointer-networks/" data-title="Pointer Networks | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/09/09/coverage-based-attention/" data-title="Coverage-based Attention | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -117,19 +133,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/07/17/collections-readings/" title="Collections of Readings">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  Collections of Readings</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2017/07/10/learning-phrase-representations-using-RNN/"  title="Learning Phrase Representations Using RNN">
+<a href="/2017/08/31/adversarial-multi-criteria-learning-for-chinese-word-segmentation/"  title="Adversarial Multi-Criteria Learning for Chinese Word Segmentation">
  <strong>NEXT:</strong><br/> 
- <span>Learning Phrase Representations Using RNN
+ <span>Adversarial Multi-Criteria Learning for Chinese Word Segmentation
 </span>
 </a>
 </div>
@@ -142,7 +150,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Coverage-Model-in-SMT"><span class="toc-number">1.</span> <span class="toc-text">Coverage Model in SMT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apply-Coverage-Model-to-NMT"><span class="toc-number">2.</span> <span class="toc-text">Apply Coverage Model to NMT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linguistic-Coverage"><span class="toc-number">2.1.</span> <span class="toc-text">Linguistic Coverage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Partial-Neural-Coverage"><span class="toc-number">2.2.</span> <span class="toc-text">Partial Neural Coverage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Neural-Coverage"><span class="toc-number">2.3.</span> <span class="toc-text">Neural Coverage</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-Setting"><span class="toc-number">3.</span> <span class="toc-text">Training Setting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results"><span class="toc-number">4.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">
