@@ -1,0 +1,374 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>Visualizing and Understanding Neural Machine Translation | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="This work [1] proposed to use layer-wise relevance propagation(LRP) [2] compute the relevance">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/09/15/visualizing-and-understanding-NMT/" title="Visualizing and Understanding Neural Machine Translation" itemprop="url">Visualizing and Understanding Neural Machine Translation</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-09-15T03:16:00.000Z" itemprop="datePublished">2017-15-09</time>
+    Updated:<time datetime="2017-09-18T02:51:25.000Z" itemprop="dateModified">2017-18-09</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#the-Relevance"><span class="toc-number">1.</span> <span class="toc-text">the Relevance</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Notations"><span class="toc-number">1.1.</span> <span class="toc-text">Notations</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Contextual-Word-Set"><span class="toc-number">1.2.</span> <span class="toc-text">Contextual Word Set</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Neuron-level-Relevance"><span class="toc-number">1.3.</span> <span class="toc-text">Neuron-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector-level-Relevance"><span class="toc-number">1.4.</span> <span class="toc-text">Vector-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Relevance-Vector"><span class="toc-number">1.5.</span> <span class="toc-text">Relevance Vector</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LRP"><span class="toc-number">2.</span> <span class="toc-text">LRP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">3.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Encoding"><span class="toc-number">3.1.</span> <span class="toc-text">Encoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Decoding"><span class="toc-number">3.2.</span> <span class="toc-text">Decoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-1-Word-Omission"><span class="toc-number">3.3.</span> <span class="toc-text">Translation Error 1: Word Omission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-2-Word-Repetition"><span class="toc-number">3.4.</span> <span class="toc-text">Translation Error 2: Word Repetition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-3-Unrelated-Words"><span class="toc-number">3.5.</span> <span class="toc-text">Translation Error 3: Unrelated Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-4-Negation-Reversion"><span class="toc-number">3.6.</span> <span class="toc-text">Translation Error 4: Negation Reversion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-5-Extra-Words"><span class="toc-number">3.7.</span> <span class="toc-text">Translation Error 5: Extra Words</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>This work [1] proposed to use layer-wise relevance propagation(LRP) [2] compute the relevance <a id="more"></a> A.K.A. the contribution of each contextual word to arbitrary hidden states.</p>
+<h2 id="the-Relevance"><a href="#the-Relevance" class="headerlink" title="the Relevance"></a>the Relevance</h2><h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><ol>
+<li>$\overrightarrow{h}_i$: the i-th source forward hidden state</li>
+<li>$\overleftarrow{h}_i$: the i-th source backward hidden state</li>
+<li>$\textbf{h}_i$: the i-th source hidden state</li>
+<li>$\vec{c}_j$: the j-th source context vector</li>
+<li>$\vec{s}_j$: the j -th target hidden state</li>
+<li>$\vec{y}_j$: the j-th target word embedding</li>
+</ol>
+<h3 id="Contextual-Word-Set"><a href="#Contextual-Word-Set" class="headerlink" title="Contextual Word Set"></a>Contextual Word Set</h3><p>The contextual word set of $v$ $C(v)$ is a set of source and target contextual word vectors that influences the generation of $v$.</p>
+<h3 id="Neuron-level-Relevance"><a href="#Neuron-level-Relevance" class="headerlink" title="Neuron-level Relevance"></a>Neuron-level Relevance</h3><p>The neuron-level relevance between the m-th neuron in a hidden state $v_m$ and the n-th neuron in a contextual word vector $u_n$ is denoted as $r_{u_n \leftarrow v_m}$, which satisfies<br>$$<br>v_m = \sum_{u\in C(v)}\sum^{N}_{n=1}r_{u_n \leftarrow v_m}<br>$$</p>
+<h3 id="Vector-level-Relevance"><a href="#Vector-level-Relevance" class="headerlink" title="Vector-level Relevance"></a>Vector-level Relevance</h3><p>The vector-level relevance between a hidden state $\textbf{v}$ and one contextual word vector $\textbf{u}$ quantifies the contribution of $\textbf{u}$ to the generation of $\textbf{v}$ which is calculated as<br>$$<br>R_{\textbf{u} \leftarrow \textbf{v}} = \sum^{M}_{m=1}\sum^{N}_{n=1}r_{u_n \leftarrow v_m}<br>$$</p>
+<h3 id="Relevance-Vector"><a href="#Relevance-Vector" class="headerlink" title="Relevance Vector"></a>Relevance Vector</h3><p>The relevance vector of a hidden state is a sequence of vector-level relevance of its contextual words.</p>
+<h2 id="LRP"><a href="#LRP" class="headerlink" title="LRP"></a>LRP</h2><p>Given a neuron $v$ and its incoming neurons $u \in IN(v)$, the weight ratio that measures the contribution of $u$ to $v$ is calculated as<br>$$<br>w_{\textbf{u} \rightarrow \textbf{v}} = \frac{W_{u,v}u}{ \sum_{u` \in IN(v)} W_{u`,v}u`}<br>$$</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Encoding"><a href="#Encoding" class="headerlink" title="Encoding"></a>Encoding</h3><p>They observed that the direct preceding word “liang” (two) contributed more to forming the forward hidden state of “nian” (years).<br><img src="1.png" alt="1.png"><br>Figure 1. Visualizing source hidden states for a source content word “nian” (years).</p>
+<h3 id="Decoding"><a href="#Decoding" class="headerlink" title="Decoding"></a>Decoding</h3><p>They found that most contextual words received high values of relevance when generating target hidden states. This phenomenon has been frequently observed.<br><img src="2.png" alt="2.png"><br>Figure 2. Visualizing target hidden states for a target content word “visit”.</p>
+<h3 id="Translation-Error-1-Word-Omission"><a href="#Translation-Error-1-Word-Omission" class="headerlink" title="Translation Error 1: Word Omission"></a>Translation Error 1: Word Omission</h3><p>Although the attention correctly identifies the source word, but the relevance of source context attaches more importance to the &lt; EOS &gt; token. This example demonstrated that only using attention matrices did not suffice to analyze the internal workings of NMT.<br><img src="3.png" alt="3.png"><br>Figure 3. Analyzing translation error: word omission. The 6-th source word “zhong” is untranslated incorrectly.</p>
+<h3 id="Translation-Error-2-Word-Repetition"><a href="#Translation-Error-2-Word-Repetition" class="headerlink" title="Translation Error 2: Word Repetition"></a>Translation Error 2: Word Repetition</h3><p>Word repetition not only results from wrong attention but also is significantly influenced by target side context.<br><img src="4.png" alt="4.png"><br>Figure 4. Analyzing translation error: word repetition. The target word “history” occurs twice in the translation incorrectly.</p>
+<h3 id="Translation-Error-3-Unrelated-Words"><a href="#Translation-Error-3-Unrelated-Words" class="headerlink" title="Translation Error 3: Unrelated Words"></a>Translation Error 3: Unrelated Words</h3><p>They observed that unrelated words were more likely to occur if multiple contextual words had high values in the relevance vector of the target word being generated.<br><img src="5.png" alt="5.png"><br>Figure 5. Analyzing translation error: unrelated words. The 9-th target word “forge” is totally unrelated to the source sentence.</p>
+<h3 id="Translation-Error-4-Negation-Reversion"><a href="#Translation-Error-4-Negation-Reversion" class="headerlink" title="Translation Error 4: Negation Reversion"></a>Translation Error 4: Negation Reversion</h3><p>One possible reason is that target context words take the lead in determining the next target word.<br><img src="6.png" alt="6.png"><br>Figure 6. Analyzing translation error: negation. The 8-th negation source word “bu” (not) is not translated.</p>
+<h3 id="Translation-Error-5-Extra-Words"><a href="#Translation-Error-5-Extra-Words" class="headerlink" title="Translation Error 5: Extra Words"></a>Translation Error 5: Extra Words</h3><p>Target words contribute more to the target word generation.<br><img src="7.png" alt="7.png"><br>Figure 7. Analyzing translation error: extra word. The 5-th target word “democratic” is an extra word.</p>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
+<li>Since closer surrounding words have much more significant impact (Figure 1), does that mean encoding local words is enough?</li>
+<li>It is interesting to see that the target hidden state is relevent to almost all contextual words while right after going through next layer, the target word embedding is only relevent to the word having most attention (Figure 2). </li>
+<li>In Figure 3 and 4, it is hard to say the attention was applied to right position. This indicates attention mechanism still needs to improve.</li>
+<li>Results is not only influenced by source words but also largely controlled by translated target words. In Figure 6 even if the attention pointed to the right place, maybe not so perfectly,  translated target words are still able to take over the control and generate wrong answer.</li>
+<li>Message conveyed in thoes figures is consist with the observation that there is kind of a conflict between AER and Translation Accuray.<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2>[1] Yanzhuo Ding et al. Visualizing and Understanding Neural Machine Translation. ACL 2017<br>[2] Sebastian Bach et al. On pixel-wise explanations for non-linear classifier decisions by layer-wise relevance propagation . 2015</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/09/15/visualizing-and-understanding-NMT/" data-title="Visualizing and Understanding Neural Machine Translation | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/09/09/coverage-based-attention/"  title="Coverage-based Attention">
+ <strong>NEXT:</strong><br/> 
+ <span>Coverage-based Attention
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#the-Relevance"><span class="toc-number">1.</span> <span class="toc-text">the Relevance</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Notations"><span class="toc-number">1.1.</span> <span class="toc-text">Notations</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Contextual-Word-Set"><span class="toc-number">1.2.</span> <span class="toc-text">Contextual Word Set</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Neuron-level-Relevance"><span class="toc-number">1.3.</span> <span class="toc-text">Neuron-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector-level-Relevance"><span class="toc-number">1.4.</span> <span class="toc-text">Vector-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Relevance-Vector"><span class="toc-number">1.5.</span> <span class="toc-text">Relevance Vector</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LRP"><span class="toc-number">2.</span> <span class="toc-text">LRP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">3.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Encoding"><span class="toc-number">3.1.</span> <span class="toc-text">Encoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Decoding"><span class="toc-number">3.2.</span> <span class="toc-text">Decoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-1-Word-Omission"><span class="toc-number">3.3.</span> <span class="toc-text">Translation Error 1: Word Omission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-2-Word-Repetition"><span class="toc-number">3.4.</span> <span class="toc-text">Translation Error 2: Word Repetition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-3-Unrelated-Words"><span class="toc-number">3.5.</span> <span class="toc-text">Translation Error 3: Unrelated Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-4-Negation-Reversion"><span class="toc-number">3.6.</span> <span class="toc-text">Translation Error 4: Negation Reversion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-5-Extra-Words"><span class="toc-number">3.7.</span> <span class="toc-text">Translation Error 5: Extra Words</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/POS-tagging/" title="POS tagging">POS tagging<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>3</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>3</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/others/" title="others">others<sup>1</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>4</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>14</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+
