@@ -9,7 +9,7 @@
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="Interested in the work [1], I decided to conduct an empirical comparison between SRU and LSTM on NMT task.">
+    <meta name="description" content="Interested in the work [1], I decided to conduct an empirical comparison between SRU and LSTM on the NMT task.">
     
     
     
@@ -73,7 +73,7 @@
     </p>
   <p class="article-time">
     <time datetime="2017-09-20T07:20:00.000Z" itemprop="datePublished">2017-20-09</time>
-    Updated:<time datetime="2017-09-25T03:27:22.000Z" itemprop="dateModified">2017-25-09</time>
+    Updated:<time datetime="2017-09-28T00:07:27.000Z" itemprop="dateModified">2017-28-09</time>
     
   </p>
 </header>
@@ -82,11 +82,11 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Simple-Recurrent-Unit-SRU"><span class="toc-number">1.</span> <span class="toc-text">Simple Recurrent Unit (SRU)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SRU-vs-LSTM"><span class="toc-number">2.</span> <span class="toc-text">SRU vs LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Setting"><span class="toc-number">2.1.</span> <span class="toc-text">Setting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">2.2.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTMs-with-attention-as-extra-input"><span class="toc-number">3.</span> <span class="toc-text">LSTMs with attention as extra input</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Simple-Recurrent-Unit-SRU"><span class="toc-number">1.</span> <span class="toc-text">Simple Recurrent Unit (SRU)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SRU-vs-LSTM"><span class="toc-number">2.</span> <span class="toc-text">SRU vs LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Setting"><span class="toc-number">2.1.</span> <span class="toc-text">Setting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">2.2.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTMs-with-attention-as-an-extra-input-feature"><span class="toc-number">3.</span> <span class="toc-text">LSTMs with attention as an extra input feature</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understand-the-implementation-of-the-SRU"><span class="toc-number">4.</span> <span class="toc-text">Understand the implementation of the SRU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>Interested in the work [1], I decided to conduct an empirical comparison between SRU and LSTM on NMT task. <a id="more"></a></p>
-<h2 id="Simple-Recurrent-Unit-SRU"><a href="#Simple-Recurrent-Unit-SRU" class="headerlink" title="Simple Recurrent Unit (SRU)"></a>Simple Recurrent Unit (SRU)</h2><p>They adopted skip connections (specifically highway connection) in equation 5, variational dropout (on input) and use as simple structures as possible. To fully speed up, they dropped the connection between gate and $\vec{h_{i-1}}$ in equation 1, 2 and 3. $\vec{C}_t$, $\vec{f}_t$ and $\vec{r}_t$ are cell state, forget gate and reset gate respectively. g() is an activation function. </p>
+		<p>Interested in the work [1], I decided to conduct an empirical comparison between SRU and LSTM on the NMT task. <a id="more"></a></p>
+<h2 id="Simple-Recurrent-Unit-SRU"><a href="#Simple-Recurrent-Unit-SRU" class="headerlink" title="Simple Recurrent Unit (SRU)"></a>Simple Recurrent Unit (SRU)</h2><p>Tao Lei et al. adopted skip connections (specifically highway connection) in equation 5, variational dropout (on input) and use as simple structures as possible. To fully speed up, they dropped the connection between gates and $\vec{h_{i-1}}$ in equation 1, 2 and 3. $\vec{C}_t$, $\vec{f}_t$ and $\vec{r}_t$ are cell state, forget gate and reset gate respectively. g() is an activation function. </p>
 <p>$$\begin{eqnarray}<br>\vec{\tilde{C}}_t = W_c\vec{x}_t \\<br>\vec{f}_t = \sigma(W_f\vec{x}_t + \vec{b}_f) \\<br>\vec{r}_t = \sigma(W_r\vec{x}_t + \vec{b}_r) \\<br>\vec{C}_t = \vec{f}_t \oplus \vec{C}_{t-1} + (1-\vec{f}_t) \oplus \vec{\tilde{C}}_t \\<br>\vec{h}_t = \vec{r}_t \oplus \mbox{g}(\vec{C}_t) + (1-\vec{r}_t) \oplus \vec{x}_t<br>\end{eqnarray}$$</p>
 <h2 id="SRU-vs-LSTM"><a href="#SRU-vs-LSTM" class="headerlink" title="SRU vs LSTM"></a>SRU vs LSTM</h2><h3 id="Setting"><a href="#Setting" class="headerlink" title="Setting"></a>Setting</h3><ul>
 <li>SGD with learning rate 1</li>
@@ -95,18 +95,19 @@
 <li>Dropout rate is 0.3</li>
 <li>Bidirectional encoder</li>
 <li>General Luong Attention</li>
-<li>Don’t feed attention as extra input feature to be fair</li>
+<li>Don’t feed attention as an extra input feature to be fair</li>
 </ul>
 <h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><p><img src="perplexities-of-SRU-and-LSTM.png" alt="perplexities-of-SRU-and-LSTM.png"><br>Figure 1. perplexities of SRU and LSTM</p>
 <p><img src="speeds.png" alt="speeds"><br>Figure 2. speeds of SRU and LSTM</p>
-<h2 id="LSTMs-with-attention-as-extra-input"><a href="#LSTMs-with-attention-as-extra-input" class="headerlink" title="LSTMs with attention as extra input"></a>LSTMs with attention as extra input</h2><p><img src="perplexities-of-LSTMs.png" alt="perplexities-of-LSTMs.png"><br>Figure 3. perplexities of LSTMs</p>
+<h2 id="LSTMs-with-attention-as-an-extra-input-feature"><a href="#LSTMs-with-attention-as-an-extra-input-feature" class="headerlink" title="LSTMs with attention as an extra input feature"></a>LSTMs with attention as an extra input feature</h2><p><img src="perplexities-of-LSTMs.png" alt="perplexities-of-LSTMs.png"><br>Figure 3. perplexities of LSTMs</p>
+<h2 id="Understand-the-implementation-of-the-SRU"><a href="#Understand-the-implementation-of-the-SRU" class="headerlink" title="Understand the implementation of the SRU"></a>Understand the implementation of the SRU</h2><p>For better undertanding, I rewrited the cuda code of tanh version SRU which can be seen at <a href="https://github.com/jingxil/sru" target="_blank" rel="external">here</a>. In this code, I  wrote down every step specifically and added some comments which made the code more reader-friendly.</p>
 <h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
 <li>SRU is faster than LSTM.</li>
 <li>To achieve the same performance, SRU has to stack more layers than LSTM.</li>
 <li>Stacking multiple SRU layers is possible. Compared with 4 layers are the limit of LSTM, 10-layer SRU is still able to converge and get a lower perplexity.</li>
 <li>2-layer LSTM works significantly better than 1-layer LSTM while 4-layer LSTM is no better than 2-layer LSTM.</li>
 <li>Larger embedding size boots final result little.</li>
-<li>Kowning previous attention surely helps model predict which is easy to notice. However, SRU achieves similar performance without previous attention information. I assume the highway connection and attention provides complementary information.</li>
+<li>Kowning previous attention surely helps model predict which is easy to notice. However, SRU achieves similar performance without previous attention information. I assume the skip connection and attention provides complementary information.</li>
 </ul>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Tao Lei et al. Training RNNs as Fast as CNNs. arvix 2017</p>
   
@@ -149,7 +150,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Simple-Recurrent-Unit-SRU"><span class="toc-number">1.</span> <span class="toc-text">Simple Recurrent Unit (SRU)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SRU-vs-LSTM"><span class="toc-number">2.</span> <span class="toc-text">SRU vs LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Setting"><span class="toc-number">2.1.</span> <span class="toc-text">Setting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">2.2.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTMs-with-attention-as-extra-input"><span class="toc-number">3.</span> <span class="toc-text">LSTMs with attention as extra input</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Simple-Recurrent-Unit-SRU"><span class="toc-number">1.</span> <span class="toc-text">Simple Recurrent Unit (SRU)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SRU-vs-LSTM"><span class="toc-number">2.</span> <span class="toc-text">SRU vs LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Setting"><span class="toc-number">2.1.</span> <span class="toc-text">Setting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">2.2.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSTMs-with-attention-as-an-extra-input-feature"><span class="toc-number">3.</span> <span class="toc-text">LSTMs with attention as an extra input feature</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understand-the-implementation-of-the-SRU"><span class="toc-number">4.</span> <span class="toc-text">Understand the implementation of the SRU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">5.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">6.</span> <span class="toc-text">References</span></a></li></ol>
   </div>
 
 <div id="asidepart">

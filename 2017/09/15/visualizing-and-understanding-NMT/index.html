@@ -9,7 +9,7 @@
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="This work [1] proposed to use layer-wise relevance propagation(LRP) [2] compute the relevance">
+    <meta name="description" content="This work [1] proposed to use layer-wise relevance propagation(LRP) [2] to compute the relevance">
     
     
     
@@ -73,7 +73,7 @@
     </p>
   <p class="article-time">
     <time datetime="2017-09-15T03:16:00.000Z" itemprop="datePublished">2017-15-09</time>
-    Updated:<time datetime="2017-09-18T02:51:25.000Z" itemprop="dateModified">2017-18-09</time>
+    Updated:<time datetime="2017-09-27T03:14:20.000Z" itemprop="dateModified">2017-27-09</time>
     
   </p>
 </header>
@@ -85,7 +85,7 @@
 		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#the-Relevance"><span class="toc-number">1.</span> <span class="toc-text">the Relevance</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Notations"><span class="toc-number">1.1.</span> <span class="toc-text">Notations</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Contextual-Word-Set"><span class="toc-number">1.2.</span> <span class="toc-text">Contextual Word Set</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Neuron-level-Relevance"><span class="toc-number">1.3.</span> <span class="toc-text">Neuron-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Vector-level-Relevance"><span class="toc-number">1.4.</span> <span class="toc-text">Vector-level Relevance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Relevance-Vector"><span class="toc-number">1.5.</span> <span class="toc-text">Relevance Vector</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LRP"><span class="toc-number">2.</span> <span class="toc-text">LRP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">3.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Encoding"><span class="toc-number">3.1.</span> <span class="toc-text">Encoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Decoding"><span class="toc-number">3.2.</span> <span class="toc-text">Decoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-1-Word-Omission"><span class="toc-number">3.3.</span> <span class="toc-text">Translation Error 1: Word Omission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-2-Word-Repetition"><span class="toc-number">3.4.</span> <span class="toc-text">Translation Error 2: Word Repetition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-3-Unrelated-Words"><span class="toc-number">3.5.</span> <span class="toc-text">Translation Error 3: Unrelated Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-4-Negation-Reversion"><span class="toc-number">3.6.</span> <span class="toc-text">Translation Error 4: Negation Reversion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Translation-Error-5-Extra-Words"><span class="toc-number">3.7.</span> <span class="toc-text">Translation Error 5: Extra Words</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
 		</div>
 		
-		<p>This work [1] proposed to use layer-wise relevance propagation(LRP) [2] compute the relevance <a id="more"></a> A.K.A. the contribution of each contextual word to arbitrary hidden states.</p>
+		<p>This work [1] proposed to use layer-wise relevance propagation(LRP) [2] to compute the relevance <a id="more"></a> A.K.A. the contribution of each contextual word to arbitrary hidden states.</p>
 <h2 id="the-Relevance"><a href="#the-Relevance" class="headerlink" title="the Relevance"></a>the Relevance</h2><h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><ol>
 <li>$\overrightarrow{h}_i$: the i-th source forward hidden state</li>
 <li>$\overleftarrow{h}_i$: the i-th source backward hidden state</li>
