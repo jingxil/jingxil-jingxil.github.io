@@ -1,0 +1,405 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>Adversarial Neural Machine Translation | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="Wu et al.[1] managed to apply Generative Adversarial Networks(GAN) on NMT, despite the difficulty of progagating information from the discriminator to">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/10/20/adversarial-neural-machine-translation/" title="Adversarial Neural Machine Translation" itemprop="url">Adversarial Neural Machine Translation</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-10-20T00:06:04.000Z" itemprop="datePublished">2017-20-10</time>
+    Updated:<time datetime="2017-10-31T02:58:03.000Z" itemprop="dateModified">2017-31-10</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Adversary-Model"><span class="toc-number">2.1.</span> <span class="toc-text">Adversary Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Propagate-Signals-to-NMT-Model"><span class="toc-number">2.2.</span> <span class="toc-text">Propagate Signals to NMT Model</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Settings"><span class="toc-number">3.1.</span> <span class="toc-text">Settings</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#En-gt-Fr-G-Model"><span class="toc-number">3.1.1.</span> <span class="toc-text">En->Fr G Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#De-gt-En-G-Model"><span class="toc-number">3.1.2.</span> <span class="toc-text">De->En G Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#adversary-D-Model"><span class="toc-number">3.1.3.</span> <span class="toc-text">adversary D Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Joint-Training"><span class="toc-number">3.1.4.</span> <span class="toc-text">Joint Training</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">3.2.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Impact-of-Learning-Rates"><span class="toc-number">3.3.</span> <span class="toc-text">Impact of Learning Rates</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>Wu et al.[1] managed to apply Generative Adversarial Networks(GAN) on NMT, despite the difficulty of progagating information from the discriminator to the generator through the discretely generated natural language tokens. </p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>They thinks Maximum Likelihood Estimation (MLE) does not guarantee natural translation results. Not even by adding sequence level objectives (e.g. directly maximizing BLEU). By adopting GAN, they believe the NMT model can generate more natural sentence since the NMT generator model is trained to fool the discriminator model.</p>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>Since it is a GAN. There are a generator which could be any NMT model and a discriminator which is a CNN in their work. The generator learns to generate correct and natural translation results so that the discriminator can not tell which is generated by the generator. And the discriminator learns to not be fooled by the generator. The framework is as in Figure 1.</p>
+<p><img src="architecture.png" alt="architecture"><br>Figure 1: </p>
+<h3 id="Adversary-Model"><a href="#Adversary-Model" class="headerlink" title="Adversary Model"></a>Adversary Model</h3><p>a CNN is used as the adversary model to capture the hierarchical correspondence of $(x,y)$ at differenct abstraction levels. Given a sentence pair $(x,y)$ where $x_{i},y_{j}$ are embedding vectors, feature map is constructed as<br>$$<br>z^{0}_{i,j} = [x^T_{i},y^T_{j}]^T<br>$$<br>Then feature map is put through convolutional and max-pooling layers. The ativation function here is sigmoid (why not more widely used ReLU). At last layer, there is a MLP to ouput the probability that $(x,y)$ is from ground-truth data. The framework is shown in Figure 2. (not sure how they deal with the various sequence lengths)</p>
+<p><img src="CNN-adversary.png" alt="CNN-adversary"><br>Figure 2:</p>
+<h3 id="Propagate-Signals-to-NMT-Model"><a href="#Propagate-Signals-to-NMT-Model" class="headerlink" title="Propagate Signals to NMT Model"></a>Propagate Signals to NMT Model</h3><p>With the notations for NMT model G and adversary model D, the final training objective is:<br>$$<br>\underset{G} \min \underset{D} \max V(D,G) = E_{(x,y) \sim P_{data}(x,y)} [ \log D(x,y)] +<br>E_{x \sim P_{data}(x), y^\prime \sim G(\cdot|x)} [ \log (1-D(x,y^\prime))]<br>$$</p>
+<p>It is easy to train the adversary model D. However, the discretely sampled $y^\prime$ from G makes it difficult to directly back-propagate the error signals from D to G. Because the gradient of argmax degenerates. To explain this, let us consider the gradient of $argmax(x_1,x_2)$ w.r.t. $x_1$. When $x_1 &lt; x_2 $, $argmax(x_1,x_2)=1$. the gradient w.r.t. $x_1$ is 0.  When $x_1 &gt; x_2 $, $argmax(x_1,x_2)=0$. the gradient w.r.t. $x_1$ is still 0. They came up with REINFORCE algorithm, a Monte-Carlo policy gradient method in reinforcement learning literature to optimize G. Note that the objective of training G under a fixed source language sentence x and D is to minimize the following loss:<br>$$<br>L = E_{y^\prime \sim G(\cdot|x)} [ \log (1-D(x,y^\prime))]<br>$$<br>whose gradient w.r.t. $\Theta_{G}$ is<br>$$<br>\bigtriangledown _{\Theta_{G}} L = E_{y^\prime \sim G(\cdot|x)} [ \log (1-D(x,y^\prime)) \bigtriangledown _{\Theta_{G}} \log G(x,y^\prime)]<br>$$<br>A sample $y^\prime$ from $G(\cdot|x)$ is used to approximate above gradient<br>$$<br>\bigtriangledown _{\Theta_{G}} \approx \hat{\bigtriangledown}  _{\Theta_{G}} \log (1-D(x,y^\prime)) \bigtriangledown _{\Theta_{G}} \log G(x,y^\prime)<br>$$</p>
+<p>From the view of reinforcement learning, $G(\cdot|x)$ is the conditional policy faced with x. And $ - \log (1-D(x,y^\prime))$ term provided by D acts as a Monte-Carlo estimation of the reward. Using only one sample brings high varience. To reduce it, a moving average of the historical reward values is set as a reward baseline.</p>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>Pretrain G and D and then train G and D jointly.</p>
+<h3 id="Settings"><a href="#Settings" class="headerlink" title="Settings"></a>Settings</h3><h4 id="En-gt-Fr-G-Model"><a href="#En-gt-Fr-G-Model" class="headerlink" title="En-&gt;Fr G Model"></a>En-&gt;Fr G Model</h4><ul>
+<li>WMT 2014 training corpus as training set(12M pairs), the combination of news-test 2012 and news-test 2013 as dev set(6K pairs) and news-test 2014 as test set(3K pairs).</li>
+<li>Maximal sentence length is 50.</li>
+<li>Use top 30k most frequent English and French words.</li>
+<li>Embedding size is 620.</li>
+<li>hidden state size is 1000.</li>
+<li>Batch size 80.</li>
+<li>Gradient clipping is 1.</li>
+<li>Initial learning rate is 0.02 and halves it every 80k iterations.</li>
+</ul>
+<h4 id="De-gt-En-G-Model"><a href="#De-gt-En-G-Model" class="headerlink" title="De-&gt;En G Model"></a>De-&gt;En G Model</h4><ul>
+<li>IWSLT 2014 evaluation campaign consisting of training(153k)/dev(7k)/test(6.5k) corpus.</li>
+<li>Maximal sentence length is 50.</li>
+<li>Use 22,822 most frequent English and 32,009 German words.</li>
+<li>Embedding size is 256.</li>
+<li>Hidden state size is 256.</li>
+<li>Batch size 32.</li>
+<li>Gradient clipping is 10.</li>
+<li>Initial learning rate is 0.001 and halves it every 80k iterations.</li>
+</ul>
+<h4 id="adversary-D-Model"><a href="#adversary-D-Model" class="headerlink" title="adversary D Model"></a>adversary D Model</h4><ul>
+<li>2 conv3x3 + pool2x2 layers with 20 feature maps.</li>
+<li>1 MPL with 20 hidden layer size. </li>
+</ul>
+<h4 id="Joint-Training"><a href="#Joint-Training" class="headerlink" title="Joint Training"></a>Joint Training</h4><ul>
+<li>Fix embedding.</li>
+<li>Batch size is set as 32.</li>
+<li>Beam size is 4.</li>
+<li>Nesterov SGD.</li>
+<li>Force 50% randomly chosen mini-batch data are trained with Adversarial-NMT, while apply MLE principle to the other mini-batches. This significantly improves stability. It also reported in other tasks.</li>
+</ul>
+<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><p>They compared perforances among some well acknowledged NMT systems. Those systems leverage</p>
+<ol>
+<li>Using large vocabulary to handle rare words (Jean et al., 2015; Luong et al., 2015).</li>
+<li>Minimum Risk Training (MRT) to directly optimize evaluation measure (Shen et al., 2016).</li>
+<li>Dual learning to enhance both primal and dual tasks (He et al., 2016).</li>
+<li>Postprocessing UNK (Luong et al., 2015; Jean et al., 2015).</li>
+<li>Use monolingual training data with an automatic back-translation (Sennrich et al., 2016).</li>
+</ol>
+<p>Table 1: Different NMT systems’ performances on En-&gt;Fr translation<br><img src="enfr-comparison.png" alt="enfr-comparison"></p>
+<p>Table 2: Different NMT systems’ performances on De-&gt;En translation<br><img src="deen-comparison.png" alt="deen-comparison"></p>
+<p>Table 3: Human evaluations on En-&gt;Fr ( 286 (57.2%) means that evaluator 1 made a decision that 286 (57.2%) out of 500 translations generated by Adversarial-NMT were better than MRT)<br><img src="enfr-human-evaluation.png" alt="enfr-human-evaluation"></p>
+<h3 id="Impact-of-Learning-Rates"><a href="#Impact-of-Learning-Rates" class="headerlink" title="Impact of Learning Rates"></a>Impact of Learning Rates</h3><p>From Figure 3, we could see Adversarial-NMT is much more robust with regard to the pace of D making progress than that of G. Wu et al. conclude that G is relatively weak and needs carefully configurations of learning rate.</p>
+<p><img src="impact-of-lr.png" alt="impact-of-lr"><br>Figure 3: En-&gt;Fr Dev set BLEUs during training process with diffrent learning rate.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Wu et al. Adversarial Neural Machine Translation. arXiv 2017</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a><a href="/tags/RL/">RL</a><a href="/tags/GAN/">GAN</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/10/20/adversarial-neural-machine-translation/" data-title="Adversarial Neural Machine Translation | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/10/13/dual-learning-NMT/"  title="Dual Leanring in NMT">
+ <strong>NEXT:</strong><br/> 
+ <span>Dual Leanring in NMT
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Adversary-Model"><span class="toc-number">2.1.</span> <span class="toc-text">Adversary Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Propagate-Signals-to-NMT-Model"><span class="toc-number">2.2.</span> <span class="toc-text">Propagate Signals to NMT Model</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Settings"><span class="toc-number">3.1.</span> <span class="toc-text">Settings</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#En-gt-Fr-G-Model"><span class="toc-number">3.1.1.</span> <span class="toc-text">En->Fr G Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#De-gt-En-G-Model"><span class="toc-number">3.1.2.</span> <span class="toc-text">De->En G Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#adversary-D-Model"><span class="toc-number">3.1.3.</span> <span class="toc-text">adversary D Model</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Joint-Training"><span class="toc-number">3.1.4.</span> <span class="toc-text">Joint Training</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Results"><span class="toc-number">3.2.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Impact-of-Learning-Rates"><span class="toc-number">3.3.</span> <span class="toc-text">Impact of Learning Rates</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/GAN/" title="GAN">GAN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/POS-tagging/" title="POS tagging">POS tagging<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RL/" title="RL">RL<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>4</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>3</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/others/" title="others">others<sup>2</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>6</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>16</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+

@@ -1,0 +1,383 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>Dual Leanring in NMT | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="Yingce Xia et al. explored a series of applications of Dual Learning [1,2,3] on various tasks namely">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/10/13/dual-learning-NMT/" title="Dual Leanring in NMT" itemprop="url">Dual Leanring in NMT</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-10-13T00:06:04.000Z" itemprop="datePublished">2017-13-10</time>
+    Updated:<time datetime="2017-10-31T02:57:55.000Z" itemprop="dateModified">2017-31-10</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Form"><span class="toc-number">1.</span> <span class="toc-text">Dual Form</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Problem-Formulation"><span class="toc-number">2.</span> <span class="toc-text">Problem Formulation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Supervised-Learning"><span class="toc-number">3.</span> <span class="toc-text">Dual Supervised Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Description"><span class="toc-number">3.1.</span> <span class="toc-text">Description</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Experiment"><span class="toc-number">3.2.</span> <span class="toc-text">Experiment</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Settings"><span class="toc-number">3.2.1.</span> <span class="toc-text">Settings</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Results"><span class="toc-number">3.2.2.</span> <span class="toc-text">Results</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Inference"><span class="toc-number">4.</span> <span class="toc-text">Dual Inference</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Results-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">Results</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Semi-supervised-Learning"><span class="toc-number">5.</span> <span class="toc-text">Dual Semi-supervised Learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Compare-dual-learning-with-other-learning-schemes"><span class="toc-number">6.</span> <span class="toc-text">Compare dual learning with other learning schemes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">7.</span> <span class="toc-text">References</span></a></li></ol>
+		</div>
+		
+		<p>Yingce Xia et al. explored a series of applications of Dual Learning [1,2,3] on various tasks namely <a id="more"></a> machine translation, image processing and sentiment analysis. I am interested in Dual Leanring on machine translation task.</p>
+<h2 id="Dual-Form"><a href="#Dual-Form" class="headerlink" title="Dual Form"></a>Dual Form</h2><p>Two tasks are in dual form if the input and output of one task are exactly the output and input of the other task respectively. For example in machine translation task, translation from Chinese to English and translation from English to Chinese are in dual form. It is proved that we can exploit the duality between two tasks to boots the performance for both of them.</p>
+<h2 id="Problem-Formulation"><a href="#Problem-Formulation" class="headerlink" title="Problem Formulation"></a>Problem Formulation</h2><p>Let’s call one task in the dual form primal task and the other dual task. The primal task has input space $X$ and output space $Y$ while the dual task has input space $Y$ and output space $X$. The primal task learns a conditional distribution $P(y|x;\theta_{xy})$ whereas the dual task learns $P(x|y;\theta_{yx})$ where $x \in X$ and $y \in Y$. </p>
+<p>According to Bayes’ theorem we have $P(x,y) = P(x)P(y|x) = P(y)P(x|y)$. So ideally the conditional distributions of the primal and dual tasks should satisfy<br>$$<br>\begin{eqnarray}<br>P(x)P(y|x;\theta_{xy}) = P(y)P(x|y;\theta_{yx})<br>\end{eqnarray}<br>$$<br>However, these two models are learned seperately, equation(1) might not hold which is always the case in reality. Hence, we can use equation(1) as a constraint.</p>
+<h2 id="Dual-Supervised-Learning"><a href="#Dual-Supervised-Learning" class="headerlink" title="Dual Supervised Learning"></a>Dual Supervised Learning</h2><h3 id="Description"><a href="#Description" class="headerlink" title="Description"></a>Description</h3><p>Dual Supervised Learning is to directly regulate models with equation(1). Consider primal task model $f$ and dual task model $g$<br>$$<br>f(x;\theta_{xy}) = \mbox{argmax} P(y|x;\theta_{xy}) \\<br>g(y;\theta_{yx}) = \mbox{argmax} P(x|y;\theta_{yx})<br>$$<br>We hope to minimize their losses<br>$$<br>\begin{eqnarray}<br>loss_{f} = \frac{1}{n} \sum^{n}_{i=1} l_{1}(f(x_{i};\theta_{xy}),y_{i}) \\<br>loss_{g} = \frac{1}{n} \sum^{n}_{i=1} l_{2}(g(y_{i};\theta_{yx}),x_{i})<br>\end{eqnarray}<br>$$</p>
+<p>Then introduce Lagrange multipliers and convert the constraint equation(1) as<br>$$<br>\begin{eqnarray}<br>l_{duality} = (\log \hat{P}(x) + \log P(y|x;\theta_{xy}) - \log \hat{P}(y) - \log P(x|y;\theta_{yx}) )^2<br>\end{eqnarray}<br>$$<br>where $\hat{P}(x)$ and $\hat{P}(y)$ are empirical marginal distributions. </p>
+<p>And put it into $loss_{f}$ and $loss_{g}$ which leads to<br>$$<br>loss_{f} = \frac{1}{n} \sum^{n}_{i=1} l_{1}(f(x_{i};\theta_{xy}),y_{i}) + \lambda_{xy} l_{duality}  \\<br>loss_{g} = \frac{1}{n} \sum^{n}_{i=1} l_{2}(g(y_{i};\theta_{yx}),x_{i}) + \lambda_{yx} l_{duality}<br>$$<br>where $\lambda_{xy}$ and $\lambda_{yx}$ are Lagrange parameters.</p>
+<h3 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h3><h4 id="Settings"><a href="#Settings" class="headerlink" title="Settings"></a>Settings</h4><ul>
+<li>Three datasets with 12M, 4.5M and 10M pairs (drop all sentences with more than 50 words).</li>
+<li>Use another 2 models (will not be updated during training) to estimate $\hat{P}(x) = \prod P(x_{i}|x_{\le i-1})$ and $\hat{P}(y)= \prod P(y_{i}|y_{\le i-1})$.</li>
+<li>Word embedding dimension is 620.</li>
+<li>RNN size is 1000.</li>
+<li>Vocabulary size is set as 30K, 50K and 30K respectively.</li>
+<li>Beam width is 12.</li>
+<li>Both $\lambda$s is set o 0.01.</li>
+</ul>
+<h4 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h4><p><img src="dual-supervised-learning.png" alt="dual-supervised-learning"></p>
+<p><img src="effects-of-lambda.png" alt="effects-of-lambda"></p>
+<h2 id="Dual-Inference"><a href="#Dual-Inference" class="headerlink" title="Dual Inference"></a>Dual Inference</h2><p>Intuitively, we have high confidence to judge y is a good output for the input x in the primal task, if x is a good output for y in the dual task. So the inference equations can be<br>$$<br>\begin{eqnarray}<br>f(x) =  \arg \underset{y^{‘}} \min {\alpha l_{f}(x,y^{‘}) + (1-\alpha) l_{g}(x,y^{‘})  } \\<br>g(y) =  \arg \underset{x^{‘}} \min {\beta l_{g}(x^{‘},y) + (1-\beta) l_{f}(x^{‘},y)  }<br>\end{eqnarray}<br>$$</p>
+<h4 id="Results-1"><a href="#Results-1" class="headerlink" title="Results"></a>Results</h4><p><img src="dual-inference.png" alt="dual-inference"></p>
+<p><img src="effects-of-hparams.png" alt="effects-of-hparams"></p>
+<h2 id="Dual-Semi-supervised-Learning"><a href="#Dual-Semi-supervised-Learning" class="headerlink" title="Dual Semi-supervised Learning"></a>Dual Semi-supervised Learning</h2><p>Dual Semi-supervised Learning makes use of monolingual data. The process is 1) use pre-trained primal and dual tasks for warm start. 2) the primal task translates monolingual data and passes it to the dual task. 3) the dual task transaltes it back to the primal task. 4) the primal task calculates the loss and optimizes both tasks.</p>
+<p>Another reinforcement learning approach is described in [2].</p>
+<h2 id="Compare-dual-learning-with-other-learning-schemes"><a href="#Compare-dual-learning-with-other-learning-schemes" class="headerlink" title="Compare dual learning with other learning schemes"></a>Compare dual learning with other learning schemes</h2><p>-<strong>Co-training</strong> is single-task learning and assumes that each example is described using two different feature sets that provide different, complementary information about the instance [5].<br>-<strong>Multi-task learning</strong> exploits shared information between the input of different tasks.<br>-<strong>Transfer training</strong> uses other tasks to boost main task.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Yingce Xia et al. Dual Supervised Learning. ICML 2017<br>[2] Yingce Xia et al. Dual Learning for Machine Translation. NIPS 2016<br>[3] Yingce Xia et al. Dual Inference for Machine Learning. IJCAI 2017<br>[4] Yingce Xia et al. slides <a href="http://people.ee.duke.edu/~lcarin/Chunyuan9.15.2017.pdf" target="_blank" rel="external">http://people.ee.duke.edu/~lcarin/Chunyuan9.15.2017.pdf</a><br>[5] wikipedia <a href="https://en.wikipedia.org/wiki/Co-training" target="_blank" rel="external">https://en.wikipedia.org/wiki/Co-training</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2017/10/13/dual-learning-NMT/" data-title="Dual Leanring in NMT | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/10/20/adversarial-neural-machine-translation/" title="Adversarial Neural Machine Translation">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Adversarial Neural Machine Translation</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/09/20/an-empirical-comparison-between-SRU-and-LSTM/"  title="An Empirical Comparison between SRU and LSTM">
+ <strong>NEXT:</strong><br/> 
+ <span>An Empirical Comparison between SRU and LSTM
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Form"><span class="toc-number">1.</span> <span class="toc-text">Dual Form</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Problem-Formulation"><span class="toc-number">2.</span> <span class="toc-text">Problem Formulation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Supervised-Learning"><span class="toc-number">3.</span> <span class="toc-text">Dual Supervised Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Description"><span class="toc-number">3.1.</span> <span class="toc-text">Description</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Experiment"><span class="toc-number">3.2.</span> <span class="toc-text">Experiment</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Settings"><span class="toc-number">3.2.1.</span> <span class="toc-text">Settings</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Results"><span class="toc-number">3.2.2.</span> <span class="toc-text">Results</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Inference"><span class="toc-number">4.</span> <span class="toc-text">Dual Inference</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Results-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">Results</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dual-Semi-supervised-Learning"><span class="toc-number">5.</span> <span class="toc-text">Dual Semi-supervised Learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Compare-dual-learning-with-other-learning-schemes"><span class="toc-number">6.</span> <span class="toc-text">Compare dual learning with other learning schemes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">7.</span> <span class="toc-text">References</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/GAN/" title="GAN">GAN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/POS-tagging/" title="POS tagging">POS tagging<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RL/" title="RL">RL<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>4</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>3</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/others/" title="others">others<sup>2</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>6</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>16</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+
