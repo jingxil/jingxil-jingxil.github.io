@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Pointer Networks | CN Yah</title>
+    <title>Teacher and Professor Forcing | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="This post introduces the Pointer Networks [1].">
+    <meta name="description" content="The inconsistency between training phrase and predicting phrase in RNN is a long recognized problem. During training the strategy is teacher forcing w">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/07/17/pointer-networks/" title="Pointer Networks" itemprop="url">Pointer Networks</a>
+      <a href="/2017/11/01/professor-forcing/" title="Teacher and Professor Forcing" itemprop="url">Teacher and Professor Forcing</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-07-16T23:06:04.000Z" itemprop="datePublished">2017-17-07</time>
-    Updated:<time datetime="2017-07-28T06:22:16.000Z" itemprop="dateModified">2017-28-07</time>
+    <time datetime="2017-11-01T06:54:01.000Z" itemprop="datePublished">2017-01-11</time>
+    Updated:<time datetime="2017-11-02T02:04:30.000Z" itemprop="dateModified">2017-02-11</time>
     
   </p>
 </header>
@@ -82,18 +82,37 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Professor-Forcing"><span class="toc-number">1.</span> <span class="toc-text">Professor Forcing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Objective"><span class="toc-number">2.1.</span> <span class="toc-text">Objective</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequential-MNIST"><span class="toc-number">3.1.</span> <span class="toc-text">Sequential MNIST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Character-Level-Language-Modeling"><span class="toc-number">3.2.</span> <span class="toc-text">Character-Level Language Modeling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li></ol>
 		</div>
 		
-		<p>This post introduces the Pointer Networks [1]. <a id="more"></a>  This new neural architecture tries to learn the conditional probability of an output sequence with elements that are discrete tokens corresponding to positions in an input sequence.</p>
-<h2 id="Applications"><a href="#Applications" class="headerlink" title="Applications"></a>Applications</h2><p>Pointer Networks work on the condition that the number of target classes in each step of the output depends on the length of the input.</p>
-<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>Pointer Net in [1] is based on Seq2Seq model and uses attention mechanism [2] in a different way.  </p>
-<h3 id="Attention-Mechanism"><a href="#Attention-Mechanism" class="headerlink" title="Attention Mechanism"></a>Attention Mechanism</h3><p>Let us briefly review how content-based input attention works. Suppose lengths of the input and the output are n and m respectly, and $e_{j}$ and $d_{i}$  are the encoder state at time step j and decoder hidden state at time step i. Then at output time i, the attention mask at j-th encoder state $a^{i}_{j}$ is calculated as<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>a_{j}^{i}=softmax(u_{j}^{i}) \quad  j \in (1,…,n)<br>$$<br>Then weighted encoder hidden state and decoder hidden state are contatenated and used as the new decoder hidden state.<br>$$<br>d_{i}^{‘} = \sum_{j=1}^{n} a_{j}^{i}e_{j} \<br>$$<br>$$<br>d_{i}^{new}  = [d_{i}^{‘},d_{i} ]<br>$$</p>
-<h3 id="Pointer-Net"><a href="#Pointer-Net" class="headerlink" title="Pointer Net"></a>Pointer Net</h3><p>Pointer Net seems to just change the meaning of attention mechanism. It is like “Well, now $a^{i}_{j}$ is the probability rather than the attention weight”. So, the equations exactly the same as above except the name:<br>$$<br>u_{j}^{i} = v^{T} \tanh(W_{1}e_{j} + W_{2}d_{i}) \quad  j \in (1,…,n)<br>$$<br>$$<br>P(w_{i}|w_{1},w_{2},…,w_{i-1},\theta)=softmax(u_{i})<br>$$<br>where the probability means which element of the input sequence should be picked as the output at time step i given all previous output.</p>
-<p>Figure 1 below demonstrates the differences between Seq2Seq and Pointer Net. As we can see, the main difference lies on the possible outcomes of  Seq2Seq are all values in dataset while Pointer Net’s are all values from current input.</p>
-<p><img src="differences.png" alt="differences between Seq2Seq and Pointer Net"></p>
-<p>Figure 1 is from [1].</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Oriol Vinyals et al. Pointer Networks, 2015<br>[2] Dzmitry Bahdanau et al. Neural Machine Translation by Jointly Learning to Align and Translate, 2014</p>
+		<p>The inconsistency between training phrase and predicting phrase in RNN is a long recognized problem. During training the strategy is teacher forcing which means the true $y_{i-1}$ is fed at $i$ timestep. While at predicting phrase the true $y_{i-1}$ is not available, instead predicted value $\hat{y}_{i-1}$ is used. The difference is shown in Figure 1.</p>
+<p><img src="non-teacher-teacher-forcing.png" alt="non-teacher-teacher-forcing"><br>Figure 1</p>
+<h2 id="Professor-Forcing"><a href="#Professor-Forcing" class="headerlink" title="Professor Forcing"></a>Professor Forcing</h2><p>Alex Lamb et al. [1] came up with Professor Forcing to force similar behaviors in training and predicting phrases. In detail, the Professor Forcing uses adversarial domain adaptation to regulate hidden states to be same.</p>
+<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>There are a generator RNN model G which will run in teacher forcing mode as well as non-teacher forcing mode and a discriminator RNN model D which tries to discriminate dynamics of G is in teacher forcing or not. $x$ and $y$ are input and output respectively. Chosen hidden states and outputs in G are called behavior sequence $b$ output by $B(x,y,\theta_{g})$. $D(b)$ is the output of discriminator indicating the probability that $b$ is from teacher forcing G. </p>
+<h3 id="Objective"><a href="#Objective" class="headerlink" title="Objective"></a>Objective</h3><p>For discriminator parameters $\theta_{d}$, there is no doubt that it should maximize the likelihood of correctly classifying a behavior sequence<br>$$<br>C_{d}(\theta_{d}|\theta_{g}) = E_{(x,y) \sim data} [ -\log D(B(x,y,\theta_{g}),\theta_{d})] + E_{y \sim P_{\theta_{g}}(y|x)} [ -\log(1-D(B(x,y,\theta_{g}),\theta_{d}))]<br>$$<br>And for generator G in teacher forcing mode, it should maximize the likelihood of the data distribution<br>$$<br>NLL(\theta_{g}) =  E_{(x,y) \sim data} [ -\log P_{\theta_{g}}(y|x)]<br>$$</p>
+<p>and G in non-teacher forcing mode should fool the discriminator. That is G in non-teacher forcing mode should mock up the behavior sequence $b$ of G in teacher forcing mode.<br>$$<br>C_{f}(\theta_{g}|\theta_{d}) = E_{x \sim data, y \sim P_{\theta_{g}}(y|x) }[-\log D(B(x,y,\theta_{g}),\theta_{d})]<br>$$</p>
+<p>Also optionally, we can ask the teacher-forced behavior to be indistinguishable from the nonteacher-forced behavior (not make munch sense to me)<br>$$<br>C_{t}(\theta_{g}|\theta_{d}) = E_{(x,) \sim data}[-\log (1 - D(B(x,y,\theta_{g}),\theta_{d}))]<br>$$<br> <img src="professor-forcing.png" alt="professor-forcing"><br> Figure 2: Professor Forcing Architecture</p>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>The behavior sequence $b$ used in the experiments is the pre-tanh activation of the GRU hidden states for the whole sequence considered. The discriminator D processes the behavior sequence $b$ using a bidirectional recurrent neural network. Then fed them to a 3-layer MLP. Note that D’s parameters are updated only the accuracy is between 75% and 99%. The reason is that if the accuracy is too low wrong information is backpropagated to G and if the accuracy is too high they found it hurt to continue training it.</p>
+<h3 id="Sequential-MNIST"><a href="#Sequential-MNIST" class="headerlink" title="Sequential MNIST"></a>Sequential MNIST</h3><p>On sequential MNIST dataset, the results are in Figure 3. More interestingly, if we t-sne the hidden states of teacher-forcing and professor-forcing (Figure 4), we can see that professor-forcing does regulate the behavior in predicting phase. The settings are</p>
+<ul>
+<li>Use a 3-layer GRU with 512 hidden states as the G.</li>
+<li>Use CNN as the D.</li>
+<li>Adam with a learning rate of 0.0001.</li>
+</ul>
+<p><img src="MNIST-NLL.png" alt="MNIST-NLL"><br>Figure 3: Test set negative log-likelihood evaluations</p>
+<p><img src="t-sne.png" alt="t-sne"><br>Figure 4: left: with teacher forcing, right: with professor forcing. Red dots correspond to teacher forcing hidden states, while the gold dots correspond to free running mode. With professor forcing, gold and red dot regions largely overlap.</p>
+<h3 id="Character-Level-Language-Modeling"><a href="#Character-Level-Language-Modeling" class="headerlink" title="Character-Level Language Modeling"></a>Character-Level Language Modeling</h3><p>On character level Penn-Treebank corpus, Professor Forcing works better (Figure 3). While on word level, there is no difference between Teacher Forcing and Professor Forcing. The same was observed on training on sequences of length less than 100 for speech synthesis. They attribute to the decreased importance of long-term dependencies on shorter sequences. The settings for language modeling are</p>
+<ul>
+<li>Divide the training set into non-overlapping sequences with each length of 500.</li>
+<li>G has 1 hidden layer GRU with 1024 hidden units.</li>
+<li>D consists of 2048 hidden units. Output activation of the last layer is clipped between -10 and 10.</li>
+<li>Adam with a learning rate of 0.0001.</li>
+</ul>
+<p><img src="PT-NLL.png" alt="PT-NLL"><br>Figure 5: Penn Treebank Likelihood Curves in terms of the number of iterations. Training Negative Log-Likelihood (left). Validation BPC (Right)</p>
+<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
+<li>After reading this paper, I doubt that <a href="http://localhost:4000/2017/10/20/adversarial-neural-machine-translation/" target="_blank" rel="external">Adversarial NMT</a> exploits the intrinsic of GAN. The professor-forcing definitely is not a GAN. But the different I think only is that professor-forcing connects the gap between model at training phrase model and  at predicting phrase. And the GAN connects the gap between ground true data distribution and model’s predicting distribution.</li>
+</ul>
+<p>[1] Alex Lamb et al. Professor Forcing: A New Algorithm for Training Recurrent Networks. 2016</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -108,7 +127,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/07/17/pointer-networks/" data-title="Pointer Networks | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2017/11/01/professor-forcing/" data-title="Teacher and Professor Forcing | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -117,19 +136,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/07/24/implement pointer-networks/" title="Implement Pointer Networks in Tensorflow">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  Implement Pointer Networks in Tensorflow</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2017/07/17/collections-readings/"  title="Collections of Readings">
+<a href="/2017/10/20/adversarial-neural-machine-translation/"  title="Adversarial Neural Machine Translation">
  <strong>NEXT:</strong><br/> 
- <span>Collections of Readings
+ <span>Adversarial Neural Machine Translation
 </span>
 </a>
 </div>
@@ -142,7 +153,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Applications"><span class="toc-number">1.</span> <span class="toc-text">Applications</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Attention-Mechanism"><span class="toc-number">2.1.</span> <span class="toc-text">Attention Mechanism</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pointer-Net"><span class="toc-number">2.2.</span> <span class="toc-text">Pointer Net</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">3.</span> <span class="toc-text">References</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Professor-Forcing"><span class="toc-number">1.</span> <span class="toc-text">Professor Forcing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Objective"><span class="toc-number">2.1.</span> <span class="toc-text">Objective</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequential-MNIST"><span class="toc-number">3.1.</span> <span class="toc-text">Sequential MNIST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Character-Level-Language-Modeling"><span class="toc-number">3.2.</span> <span class="toc-text">Character-Level Language Modeling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li></ol>
   </div>
 
 <div id="asidepart">
