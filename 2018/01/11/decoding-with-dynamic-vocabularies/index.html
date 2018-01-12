@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Markdown Cheatsheet | CN Yah</title>
+    <title>Decoding with Dynamic Vocabularies | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="Markdown Cheatsheet to look up on.">
+    <meta name="description" content="Using dynamic vocabularies rather than the whole vocabularies(the size can be up to 50k) significantly reduces the costs during decoding. Also, narrow">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/06/26/cheatsheet/" title="Markdown Cheatsheet" itemprop="url">Markdown Cheatsheet</a>
+      <a href="/2018/01/11/decoding-with-dynamic-vocabularies/" title="Decoding with Dynamic Vocabularies" itemprop="url">Decoding with Dynamic Vocabularies</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-06-25T17:06:59.000Z" itemprop="datePublished">2017-26-06</time>
-    Updated:<time datetime="2017-07-10T01:00:38.000Z" itemprop="dateModified">2017-10-07</time>
+    <time datetime="2018-01-11T06:54:01.000Z" itemprop="datePublished">2018-11-01</time>
+    Updated:<time datetime="2018-01-11T06:16:35.000Z" itemprop="dateModified">2018-11-01</time>
     
   </p>
 </header>
@@ -82,64 +82,36 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model"><span class="toc-number">2.</span> <span class="toc-text">Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Objective-Function"><span class="toc-number">3.</span> <span class="toc-text">Objective Function</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Setup"><span class="toc-number">4.</span> <span class="toc-text">Experiment Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">5.</span> <span class="toc-text">Reference</span></a></li></ol>
 		</div>
 		
-		<p>Markdown Cheatsheet to look up on.</p>
-<a id="more"></a>
-<h1 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h1><hr>
-<h1 id="H1"><a href="#H1" class="headerlink" title="H1"></a>H1</h1><h3 id="H2"><a href="#H2" class="headerlink" title="H2"></a>H2</h3><h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ hexo new post POST</div><div class="line">$ hexo generate</div><div class="line">$ hexo clean</div><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<h1 id="Characters"><a href="#Characters" class="headerlink" title="Characters"></a>Characters</h1><hr>
-<p><s>Strikethrough (when enable html tag decode.)</s><br><em>Italic</em>      <em>Italic</em><br><strong>Emphasis</strong>  <strong>Emphasis</strong><br><strong><em>Emphasis Italic</em></strong> <strong><em>Emphasis Italic</em></strong></p>
-<p>Superscript: X<sub>2</sub>，Subscript: O<sup>2</sup></p>
-<h3 id="Format"><a href="#Format" class="headerlink" title="Format"></a>Format</h3><hr>
-<blockquote>
-<p>Blockquotes</p>
-</blockquote>
-<p><a href="http://localhost/" target="_blank" rel="external">Links</a></p>
-<p><code>quota</code> </p>
-<h3 id="Lists"><a href="#Lists" class="headerlink" title="Lists"></a>Lists</h3><hr>
-<ul>
-<li>Item A</li>
-<li>Item B</li>
-<li>Item C</li>
+		<p>Using dynamic vocabularies rather than the whole vocabularies(the size can be up to 50k) significantly reduces the costs during decoding. Also, narrowing the candidates by removing totally irrelevant vocabularies should boost model’s performance. </p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>To tackle the ‘safe reply’ problem in neural conversation models, there are models using MMI to avoid common responses <a href="http://cnyah.com/2017/07/03/penalize-way-too-common-reponses/">link</a>, models taking conversation history into consideration, models biasing responses to some speciﬁc persona or emotions, models weighting beam search results to get a better response. Yu Wu et al.[1] proposed to factorize the generation probability $p(Y_{i}|X_{i})$ as the product of a vocabulary generation probability conditioned on the input $p(T_{i}|X_{i})$ and a response generation probability conditioned on both the input and the dynamic vocabulary $p(Y_{i}|T_{i},X_{i})$.<br>$$<br>p(Y_{i}|X_{i})=p(Y_{i}|T_{i},X_{i})p(T_{i}|X_{i})<br>$$</p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>The Dynamic Vocabulary Sequence to Sequence (DVS2S) is based on the seq2seq model. The key part is how the dynamic vocabulary is constructed. Let us make this assumption that for each $X_{i}$, Target Vocabulary $T_{i}$ is sampled from a multivariate Bernoulli distribution $(\beta_{i,1} … \beta_{i,|V|}) $ where $\beta_{i,j}$ is the probability of the j-th word being selected to generate the response to $X_{i}$. </p>
+<p>Further more, $T_{i}$ can be decomposed to the union of content words $T_{i}^{c}$ and function words $T_{i}^{f}$. Function words guarantee grammatical correctness and ﬂuency of responses. Therefore, $T_{i}^{f}$ should not vary very much. They collect words appearing more than 10 times in the training data, excluding nouns, verbs, adjectives and adverbs from them, and use the remaining ones to form a function word set and make their $\beta = 1$. Content words, on the other hand, express semantics of responses, and thus should be highly related to the input message. For $ \forall c \in T_{i}^{c} $, $ \beta_{I(c)} $ is defined as<br>$$<br>\beta_{I(c)} = \sigma(W_{c}h_{t}+b_{c})<br>$$<br>where $h_{t}$ is the last hidden state of the encoder. </p>
+<p><img src="model.png" alt="model"></p>
+<h2 id="Objective-Function"><a href="#Objective-Function" class="headerlink" title="Objective Function"></a>Objective Function</h2><p>To allocate a proper $T$ to $X$ is key to the success of DVS2S. To make sure that, they consider jointly learning vocabulary construction and response generation from training data. The Log Likelihood is<br>$$<br>L = \sum^{N}_{i=1}\log(\sum_{T_{i}}p(Y_{i}|T_{i},X_{i})p(T_{i}|X_{i}))<br>$$</p>
+<p>The objective function above is difﬁcult to optimize as logarithm is outside the summation. By Jensen’s Inequality, we have<br>$$<br>L \ge \sum^{N}_{i=1}\sum_{T_{i}}p(T_{i}|X_{i})\log(p(Y_{i}|T_{i},X_{i}))<br>$$<br>Hence, we can instead maximize the lower bound. Note the size of $T_{i}$ is $2^{|V|}$ which means it is impossible to sum over all samples of $T_{i}$. Alternatively, we can employ the Monte Carlo sampling to approximate $T_{i}$. Let’s say we have samples S which leads to<br>$$<br>L_{i} = \frac{1}{|S|}\sum_{S}\log(p(Y_{i}|T_{i},X_{i}))<br>$$</p>
+<p>While the computation is feasible $p(T_{i}|X_{i})$ is gone. There is no guide how to update $\beta$s. The trick (at least I think it is a trick) is to rewrite the gradient with respect to all parameters $\Theta$ of L as</p>
+<p>$$<br>\begin{eqnarray}<br>\frac{dL_{i}(\Theta)}{d\Theta} \\<br>= \sum_{T_{i}} p(T_{i}|X_{i})\frac{d\log(p(Y_{i}|T_{i},X_{i})}{d\Theta} + \log p(Y_{i}|T_{i},X_{i})\frac{dp(T_{i}|X_{i})}{d\Theta} \\<br>= \sum_{T_{i}} p(T_{i}|X_{i})\frac{d\log(p(Y_{i}|T_{i},X_{i})}{d\Theta} + p(T_{i}|X_{i}) \log p(Y_{i}|T_{i},X_{i})\frac{d\log p(T_{i}|X_{i})}{d\Theta} \\<br>= \sum_{T_{i}} p(T_{i}|X_{i})[\frac{d\log(p(Y_{i}|T_{i},X_{i})}{d\Theta} + \log p(Y_{i}|T_{i},X_{i})\frac{d\log p(T_{i}|X_{i})}{d\Theta}]\\<br>\end{eqnarray}<br>$$</p>
+<p>Now use samples S instead of $T_{i}$ and we get<br>$$<br>\frac{1}{|S|}\sum_{S}[\frac{d\log(p(Y_{i}|T_{i},X_{i})}{d\Theta} + \log p(Y_{i}|T_{i},X_{i})\frac{d\log p(T_{i}|X_{i})}{d\Theta}]<br>$$</p>
+<p>To reduce variance, they normalize the gradient with the length of the response and introduce a moving average baseline $b_{k}$ to the gradient. Now the gradient with respect to all parameters $\Theta$ of L is<br>$$<br>\frac{dL_{i}(\Theta)}{d\Theta} \approx \frac{1}{|S|}\sum_{S}[\frac{d\log(p(Y_{i}|T_{i},X_{i})}{d\Theta} + (\frac{1}{m}\log p(Y_{i}|T_{i},X_{i})- b_{k}) \frac{d\log p(T_{i}|X_{i})}{d\Theta}]<br>$$</p>
+<h2 id="Experiment-Setup"><a href="#Experiment-Setup" class="headerlink" title="Experiment Setup"></a>Experiment Setup</h2><ul>
+<li>The vocab size is 30,000 words that cover 98.8% and 98.3% of words.</li>
+<li>The number of samples S is 5.</li>
+<li>Word embedding size is 620.</li>
+<li>Hidden vector size is 1024.</li>
+<li>Target vocabulary contains 701 function words and top 1,000 content words.</li>
+<li>Beam size as 20.</li>
 </ul>
-<ol>
-<li>Item A</li>
-<li>Item B</li>
-<li>Item C</li>
-</ol>
-<h3 id="Images"><a href="#Images" class="headerlink" title="Images"></a>Images</h3><hr>
-<p><img src="/img/logo.svg" alt=""></p>
-<h3 id="Tables"><a href="#Tables" class="headerlink" title="Tables"></a>Tables</h3><hr>
-<table>
-<thead>
-<tr>
-<th>First Header</th>
-<th>Second Header</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Content Cell</td>
-<td>Content Cell</td>
-</tr>
-<tr>
-<td>Content Cell</td>
-<td>Content Cell </td>
-</tr>
-</tbody>
-</table>
-<h3 id="LaTeX"><a href="#LaTeX" class="headerlink" title="LaTeX"></a>LaTeX</h3><hr>
-<p>$$s_j^i =-\log(\dfrac{\exp{logits^i}}{\sum_{j=1}^V\exp{logits_j^i}})$$</p>
-<p>$$sin(\alpha)^{\theta}=\sum_{i=0}^{n}(x^i + \cos(f))$$</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Yu Wu et al. Neural Response Generation with Dynamic Vocabularies. AAAI 2018</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/notes/">notes</a>
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a>
   </div>
 
 
@@ -147,7 +119,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/06/26/cheatsheet/" data-title="Markdown Cheatsheet | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2018/01/11/decoding-with-dynamic-vocabularies/" data-title="Decoding with Dynamic Vocabularies | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -156,14 +128,14 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/06/27/gated-recurrent-neural-networks/" title="Gated Recurrent Neural Networks">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  Gated Recurrent Neural Networks</span>
+
+<div class="next">
+<a href="/2018/01/03/computer-vision-project-summary/"  title="Computer Vision Project Summary">
+ <strong>NEXT:</strong><br/> 
+ <span>Computer Vision Project Summary
+</span>
 </a>
 </div>
-
 
 </nav>
 
@@ -173,7 +145,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Header"><span class="toc-number">1.</span> <span class="toc-text">Header</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#H1"><span class="toc-number">2.</span> <span class="toc-text">H1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#H2"><span class="toc-number">2.0.1.</span> <span class="toc-text">H2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">2.0.2.</span> <span class="toc-text">Code</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Characters"><span class="toc-number">3.</span> <span class="toc-text">Characters</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format"><span class="toc-number">3.0.1.</span> <span class="toc-text">Format</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lists"><span class="toc-number">3.0.2.</span> <span class="toc-text">Lists</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Images"><span class="toc-number">3.0.3.</span> <span class="toc-text">Images</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tables"><span class="toc-number">3.0.4.</span> <span class="toc-text">Tables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX"><span class="toc-number">3.0.5.</span> <span class="toc-text">LaTeX</span></a></li></ol></li></ol></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model"><span class="toc-number">2.</span> <span class="toc-text">Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Objective-Function"><span class="toc-number">3.</span> <span class="toc-text">Objective Function</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Setup"><span class="toc-number">4.</span> <span class="toc-text">Experiment Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">5.</span> <span class="toc-text">Reference</span></a></li></ol>
   </div>
 
 <div id="asidepart">
