@@ -4,12 +4,12 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
   
-    <title>Teacher and Professor Forcing | CN Yah</title>
+    <title>Deep Neural Decision Forests | CN Yah</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="Jingxi Liang">
     
-    <meta name="description" content="The inconsistency between training phrase and predicting phrase in RNN is a long recognized problem. During training the strategy is teacher forcing w">
+    <meta name="description" content="The Deep Neural Decision Forests(dNDF) attempts to combine the Neural Network and the Random Forests.">
     
     
     
@@ -65,15 +65,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/11/01/professor-forcing/" title="Teacher and Professor Forcing" itemprop="url">Teacher and Professor Forcing</a>
+      <a href="/2018/01/29/dNDF/" title="Deep Neural Decision Forests" itemprop="url">Deep Neural Decision Forests</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
     </p>
   <p class="article-time">
-    <time datetime="2017-11-01T06:54:01.000Z" itemprop="datePublished">2017-01-11</time>
-    Updated:<time datetime="2017-11-02T02:04:30.000Z" itemprop="dateModified">2017-02-11</time>
+    <time datetime="2018-01-28T23:06:04.000Z" itemprop="datePublished">2018-29-01</time>
+    Updated:<time datetime="2018-01-29T04:23:54.000Z" itemprop="dateModified">2018-29-01</time>
     
   </p>
 </header>
@@ -82,44 +82,55 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Professor-Forcing"><span class="toc-number">1.</span> <span class="toc-text">Professor Forcing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Objective"><span class="toc-number">2.1.</span> <span class="toc-text">Objective</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequential-MNIST"><span class="toc-number">3.1.</span> <span class="toc-text">Sequential MNIST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Character-Level-Language-Modeling"><span class="toc-number">3.2.</span> <span class="toc-text">Character-Level Language Modeling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Decision-Trees-with-Stochastic-Routing"><span class="toc-number">1.</span> <span class="toc-text">Decision Trees with Stochastic Routing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training"><span class="toc-number">2.</span> <span class="toc-text">Training</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sNDF-and-dNDF"><span class="toc-number">3.</span> <span class="toc-text">sNDF and dNDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-of-My-Implementation"><span class="toc-number">4.</span> <span class="toc-text">Results of My Implementation</span></a></li></ol>
 		</div>
 		
-		<p>The inconsistency between training phrase and predicting phrase in RNN is a long recognized problem. During training the strategy is teacher forcing which means the true $y_{i-1}$ is fed at $i$ timestep. While at predicting phrase the true $y_{i-1}$ is not available, instead predicted value $\hat{y}_{i-1}$ is used. The difference is shown in Figure 1.</p>
-<p><img src="non-teacher-teacher-forcing.png" alt="non-teacher-teacher-forcing"><br>Figure 1</p>
-<h2 id="Professor-Forcing"><a href="#Professor-Forcing" class="headerlink" title="Professor Forcing"></a>Professor Forcing</h2><p>Alex Lamb et al. [1] came up with Professor Forcing to force similar behaviors in training and predicting phrases. In detail, the Professor Forcing uses adversarial domain adaptation to regulate hidden states to be same.</p>
-<h2 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h2><p>There are a generator RNN model G which will run in teacher forcing mode as well as non-teacher forcing mode and a discriminator RNN model D which tries to discriminate dynamics of G is in teacher forcing or not. $x$ and $y$ are input and output respectively. Chosen hidden states and outputs in G are called behavior sequence $b$ output by $B(x,y,\theta_{g})$. $D(b)$ is the output of discriminator indicating the probability that $b$ is from teacher forcing G. </p>
-<h3 id="Objective"><a href="#Objective" class="headerlink" title="Objective"></a>Objective</h3><p>For discriminator parameters $\theta_{d}$, there is no doubt that it should maximize the likelihood of correctly classifying a behavior sequence<br>$$<br>C_{d}(\theta_{d}|\theta_{g}) = E_{(x,y) \sim data} [ -\log D(B(x,y,\theta_{g}),\theta_{d})] + E_{y \sim P_{\theta_{g}}(y|x)} [ -\log(1-D(B(x,y,\theta_{g}),\theta_{d}))]<br>$$<br>And for generator G in teacher forcing mode, it should maximize the likelihood of the data distribution<br>$$<br>NLL(\theta_{g}) =  E_{(x,y) \sim data} [ -\log P_{\theta_{g}}(y|x)]<br>$$</p>
-<p>and G in non-teacher forcing mode should fool the discriminator. That is G in non-teacher forcing mode should mock up the behavior sequence $b$ of G in teacher forcing mode.<br>$$<br>C_{f}(\theta_{g}|\theta_{d}) = E_{x \sim data, y \sim P_{\theta_{g}}(y|x) }[-\log D(B(x,y,\theta_{g}),\theta_{d})]<br>$$</p>
-<p>Also optionally, we can ask the teacher-forced behavior to be indistinguishable from the nonteacher-forced behavior (not make munch sense to me)<br>$$<br>C_{t}(\theta_{g}|\theta_{d}) = E_{(x,) \sim data}[-\log (1 - D(B(x,y,\theta_{g}),\theta_{d}))]<br>$$<br> <img src="professor-forcing.png" alt="professor-forcing"><br> Figure 2: Professor Forcing Architecture</p>
-<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>The behavior sequence $b$ used in the experiments is the pre-tanh activation of the GRU hidden states for the whole sequence considered. The discriminator D processes the behavior sequence $b$ using a bidirectional recurrent neural network. Then fed them to a 3-layer MLP. Note that D’s parameters are updated only the accuracy is between 75% and 99%. The reason is that if the accuracy is too low wrong information is backpropagated to G and if the accuracy is too high they found it hurt to continue training it.</p>
-<h3 id="Sequential-MNIST"><a href="#Sequential-MNIST" class="headerlink" title="Sequential MNIST"></a>Sequential MNIST</h3><p>On sequential MNIST dataset, the results are in Figure 3. More interestingly, if we t-sne the hidden states of teacher-forcing and professor-forcing (Figure 4), we can see that professor-forcing does regulate the behavior in predicting phase. The settings are</p>
-<ul>
-<li>Use a 3-layer GRU with 512 hidden states as the G.</li>
-<li>Use CNN as the D.</li>
-<li>Adam with a learning rate of 0.0001.</li>
-</ul>
-<p><img src="MNIST-NLL.png" alt="MNIST-NLL"><br>Figure 3: Test set negative log-likelihood evaluations</p>
-<p><img src="t-sne.png" alt="t-sne"><br>Figure 4: left: with teacher forcing, right: with professor forcing. Red dots correspond to teacher forcing hidden states, while the gold dots correspond to free running mode. With professor forcing, gold and red dot regions largely overlap.</p>
-<h3 id="Character-Level-Language-Modeling"><a href="#Character-Level-Language-Modeling" class="headerlink" title="Character-Level Language Modeling"></a>Character-Level Language Modeling</h3><p>On character level Penn-Treebank corpus, Professor Forcing works better (Figure 3). While on word level, there is no difference between Teacher Forcing and Professor Forcing. The same was observed on training on sequences of length less than 100 for speech synthesis. They attribute to the decreased importance of long-term dependencies on shorter sequences. The settings for language modeling are</p>
-<ul>
-<li>Divide the training set into non-overlapping sequences with each length of 500.</li>
-<li>G has 1 hidden layer GRU with 1024 hidden units.</li>
-<li>D consists of 2048 hidden units. Output activation of the last layer is clipped between -10 and 10.</li>
-<li>Adam with a learning rate of 0.0001.</li>
-</ul>
-<p><img src="PT-NLL.png" alt="PT-NLL"><br>Figure 5: Penn Treebank Likelihood Curves in terms of the number of iterations. Training Negative Log-Likelihood (left). Validation BPC (Right)</p>
-<h2 id="Comments"><a href="#Comments" class="headerlink" title="Comments"></a>Comments</h2><ul>
-<li>After reading this paper, I doubt that <a href="http://localhost:4000/2017/10/20/adversarial-neural-machine-translation/" target="_blank" rel="external">Adversarial NMT</a> exploits the intrinsic of GAN. The professor-forcing definitely is not a GAN. But the different I think only is that professor-forcing connects the gap between model at training phrase model and  at predicting phrase. And the GAN connects the gap between ground true data distribution and model’s predicting distribution.</li>
-</ul>
-<p>[1] Alex Lamb et al. Professor Forcing: A New Algorithm for Training Recurrent Networks. 2016</p>
+		<p>The Deep Neural Decision Forests(dNDF) attempts to combine the Neural Network and the Random Forests.  <a id="more"></a>  The motivations are 1) the Neural Network is good at learning feature representations 2) the Random Forests is handy at dealing with dimensional data and is explainable (a fact is that the RF is very popular in data competitions). The approach is to integrate the Neural Network as split functions or routing decisions. Also, the decision trees are stochastic, differentiable, and therefore backpropagation compatible. I implemented the <a href="https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Kontschieder_Deep_Neural_Decision_ICCV_2015_paper.pdf" target="_blank" rel="external">Deep Neural Decision Forests</a> in PyTorch. The project has been pushed to Github <a href="https://github.com/jingxil/Neural-Decision-Forests" target="_blank" rel="external">link</a>.</p>
+<h2 id="Decision-Trees-with-Stochastic-Routing"><a href="#Decision-Trees-with-Stochastic-Routing" class="headerlink" title="Decision Trees with Stochastic Routing"></a>Decision Trees with Stochastic Routing</h2><p>The decision tree used here is a full binary tree. A decision tree consists of decision (or split) nodes and prediction (or leaf) nodes. As described above, the decision to go right or left is determined by the Neural Network. Let us denote all parameters of the Neural Network with $\Theta$. Every tree picks a part of the output of the Neural Network, maps the output to each decision nodes which give the probability of traversing right or left subtree. Every prediction node contains class-label distribution $\pi$. Since the routing is probabilistic which is different from normal decision tree, the prediction of each tree is given by averaging all class-label distributions of prediction nodes by the probability of arriving leaf. The architecture as below indicates the RF contains two decision trees. The RF’s prediction is obtained by averaging the prediction of decision trees.</p>
+<p><img src="arch.png" alt=""></p>
+<h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p>The parameters needed to be learned is $\Theta$ and $\pi$. If the $\pi$ is known and fixed, we can train the model like it was a normal neural network model using backpropagation. The object function can be a negative loglikelihood function which we want to minimize<br>$$<br>L = \sum -\log (P(y|x,\Theta,\pi))<br>$$</p>
+<p>But the $\pi$ is actually a pamameter. They propose to learn $\pi$ using following method for each tree<br>$$<br>\pi^{(t+1)}_{ly} = \frac{1}{Z^{(t)}_{l}} \sum_{(x,y^{‘}) \in D }  \frac{1_{y=y^{‘}} \pi^{(t)}_{ly} \mu_{l}(x|\Theta)}{P(y|x,\Theta,\pi^{(t)})}<br>$$<br>where $t$ is the iteration $t$, $l$ is the leaf $l$, $\pi_{ly}$ means the probability of class $y$ in leaf $l$, $\mu_{l}(x|\Theta)$ means the probability of arriving leaf $l$ giving example $x$, ${P(y|x,\Theta,\pi^{(t)})}$ means the probability of class $y$ giving example $x$, $(x,y^{‘})$ belongs to training dataset and ${Z^{(t)}_{l}}$ is a normalizing factor at iteration $t$. </p>
+<p>So the training strategy is to firstly update $\pi$ by the equation above with $\Theta$ fixed and then update $\Theta$ by optimizing the object function with $\pi$ fixed.</p>
+<h2 id="sNDF-and-dNDF"><a href="#sNDF-and-dNDF" class="headerlink" title="sNDF and dNDF"></a>sNDF and dNDF</h2><p>The major difference between sNDF and dNDF is that in sNDF there are no hidden layers in the neural network as indicated by the name Shallow Neural Decision Forests.</p>
+<h2 id="Results-of-My-Implementation"><a href="#Results-of-My-Implementation" class="headerlink" title="Results of My Implementation"></a>Results of My Implementation</h2><p>Below are the accuracy results of my implementation on MNIST, UCI_Adult, UCI_Letter and UCI_Yeast dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th style="text-align:center">sNDF</th>
+<th style="text-align:right">dNDF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MNIST</td>
+<td style="text-align:center">0.9794</td>
+<td style="text-align:right">0.9963</td>
+</tr>
+<tr>
+<td>UCI_Adult</td>
+<td style="text-align:center">0.8558</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td>UCI_Letter</td>
+<td style="text-align:center">0.9507</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td>UCI_Yeast</td>
+<td style="text-align:center">0.6031</td>
+<td style="text-align:right">-</td>
+</tr>
+</tbody>
+</table>
   
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a>
+  <span></span> <a href="/tags/summary/">summary</a>
   </div>
 
 
@@ -127,7 +138,7 @@
 
 <div class="article-share" id="share">
 
-  <div data-url="http://cnyah.com/2017/11/01/professor-forcing/" data-title="Teacher and Professor Forcing | CN Yah" data-tsina="null" class="share clearfix">
+  <div data-url="http://cnyah.com/2018/01/29/dNDF/" data-title="Deep Neural Decision Forests | CN Yah" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -136,19 +147,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2018/01/03/computer-vision-project-summary/" title="Computer Vision Project Summary">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  Computer Vision Project Summary</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2017/10/20/adversarial-neural-machine-translation/"  title="Adversarial Neural Machine Translation">
+<a href="/2018/01/11/decoding-with-dynamic-vocabularies/"  title="Decoding with Dynamic Vocabularies">
  <strong>NEXT:</strong><br/> 
- <span>Adversarial Neural Machine Translation
+ <span>Decoding with Dynamic Vocabularies
 </span>
 </a>
 </div>
@@ -161,7 +164,7 @@
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Professor-Forcing"><span class="toc-number">1.</span> <span class="toc-text">Professor Forcing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture"><span class="toc-number">2.</span> <span class="toc-text">Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Objective"><span class="toc-number">2.1.</span> <span class="toc-text">Objective</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiments"><span class="toc-number">3.</span> <span class="toc-text">Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequential-MNIST"><span class="toc-number">3.1.</span> <span class="toc-text">Sequential MNIST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Character-Level-Language-Modeling"><span class="toc-number">3.2.</span> <span class="toc-text">Character-Level Language Modeling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Comments"><span class="toc-number">4.</span> <span class="toc-text">Comments</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Decision-Trees-with-Stochastic-Routing"><span class="toc-number">1.</span> <span class="toc-text">Decision Trees with Stochastic Routing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training"><span class="toc-number">2.</span> <span class="toc-text">Training</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sNDF-and-dNDF"><span class="toc-number">3.</span> <span class="toc-text">sNDF and dNDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-of-My-Implementation"><span class="toc-number">4.</span> <span class="toc-text">Results of My Implementation</span></a></li></ol>
   </div>
 
 <div id="asidepart">
