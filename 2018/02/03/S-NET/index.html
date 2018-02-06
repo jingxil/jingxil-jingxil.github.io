@@ -1,0 +1,385 @@
+
+ <!DOCTYPE HTML>
+<html lang="default">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  
+    <title>S-NET: Extract and Generate | CN Yah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jingxi Liang">
+    
+    <meta name="description" content="The S-Net [1] based on the R-Net [2] tries to tackle the open-domain QA problem just like the Reading Wikipedia to Answer Open-Domain Questions does. ">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+  <body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="CN Yah" title="CN Yah"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="CN Yah">CN Yah</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:cnyah.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/02/03/S-NET/" title="S-NET: Extract and Generate" itemprop="url">S-NET: Extract and Generate</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://cnyah.com" title="Jingxi Liang">Jingxi Liang</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2018-02-03T03:06:04.000Z" itemprop="datePublished">2018-03-02</time>
+    Updated:<time datetime="2018-02-06T08:40:21.000Z" itemprop="dateModified">2018-06-02</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model"><span class="toc-number">2.</span> <span class="toc-text">Model</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction"><span class="toc-number">2.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis"><span class="toc-number">2.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-number">3.</span> <span class="toc-text">Optimization</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction-1"><span class="toc-number">3.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis-1"><span class="toc-number">3.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experimental-Setting"><span class="toc-number">4.</span> <span class="toc-text">Experimental Setting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction-2"><span class="toc-number">4.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis-2"><span class="toc-number">4.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li></ol>
+		</div>
+		
+		<p>The S-Net [1] based on the R-Net [2] tries to tackle the open-domain QA problem just like the <a href="http://cnyah.com/2017/07/31/machine-reading-at-scale/">Reading Wikipedia to Answer Open-Domain Questions</a> does. the S-Net decomposes the problem into two problems, Evidence Extraction and Answer Synthesis namely.</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>In the SQuAD dataset there is a constraint that words to answer questions are all provided in passages. Specifically, the answer is a span of words in the corresponding passage. So most works leverage the Pointer Network to predict the start point and end point of the answer in a passage. This is not the case of reality. Datasets like MS-MARCO and DuReader removes this constraint. They provide several passages for each question and the answer is generated by the human. So the answer may not be a span in a passage or not necessarily use any word in provided passages. They proposed an extraction-then-synthesis framework. </p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><h3 id="Evidence-Snippet-Prediction"><a href="#Evidence-Snippet-Prediction" class="headerlink" title="Evidence Snippet Prediction"></a>Evidence Snippet Prediction</h3><p>This evidence extraction model is treated as a multi-task learning model. It not only learns text spans of evidence but also learns to rank passage candidates. This model is alike their previous work R-NET. For a question $Q=|w^{Q}_{t}|^{m}_{t=1}$ and a passage $P=|w^{P}_{t}|^{n}_{t=1}$, all words are encoded through word embedding and character embedding. The final hidden state of a bi-directional GRU applied to charaters is used as the character embedding of corresponding word. By concatenating the two forms of embeddings ( $e$ and $char$ ) and puting them into another bi-directional GRU, a new representation of words $u^Q_i$ (for question) and $u^P_j$ (for passage) is obtained.<br>$$<br>u^Q_t = \mbox{BiGRU}_{Q}(u^Q_{t-1},[e^Q_t,char^{Q}_{t}]) \\<br>u^P_t = \mbox{BiGRU}_{P}(u^P_{t-1},[e^P_t,char^{P}_{t}])<br>$$</p>
+<p>Then a SeqMatchSeq like model is used to mix up question and passage. At step $t$, first the context vector $c^{Q}_{t}$ is calculated as below<br>$$<br>s^{t}_{j} = v^{T}\mbox{tanh}(W^{Q}_{u}u^{Q}_{j}+W^{P}_{u}u^{P}_{t}) \\<br>a^{t}_{i} = \exp (s^{t}_{i}) / \sum^{m}_{j=1}\exp(s^{t}_{j}) \\<br>c^{Q}_{t} = \sum^{m}_{i=1} a^{t}_{i} u^{Q}_{t}<br>$$<br>Next, concatenate context vector $c^{Q}_{t}$ and current passage word $u^{P}_{t}$ and compute a gate $g_t$ to determine how much information will be used.<br>$$<br>g_t = \sigma (W_g[u^{P}_{t},c^{Q}_{t}]) \\<br>[u^{P}_{t},c^{Q}_{t}]^{*} = g_t \odot  [u^{P}_{t},c^{Q}_{t}]  \\<br>v^{P}_{t} = \mbox{GRU}(v^{P}_{t-1},[u^{P}_{t},c^{Q}_{t}]^{*})<br>$$ </p>
+<p>Concatenate the new representation of all passage, and compute the pointers for start position $p^1$ and end position $p^2$<br>$$<br>s^{t}_{j} = v^{T}\mbox{tanh}(W^{P}_{h}u^{P}_{j}+W^{a}_{h}h^{a}_{t-1}) \\<br>a^{t}_{i} = \exp (s^{t}_{i}) / \sum^{N}_{j=1}\exp(s^{t}_{j}) \\<br>p^t = \mbox{argmax}(a^{t}_{1},…,a^{t}_{N})<br>$$<br>where $h^{a}_{t-1}$ represents the last hidden state of the pointer network. For the initial hidden state, it is computed as<br>$$<br>s_{j} = v^{T}\mbox{tanh}(W^{Q}_{u}u^{Q}_{j}+W^{Q}_{v}v^{Q}_{r}) \\<br>a_{i} = \exp (s_{i}) / \sum^{N}_{j=1}\exp(s_{j}) \\<br>r^{Q} = \sum^{m}_{i=1} a_{i}u^{Q}_{i}<br>$$<br>where $v^{Q}_{r}$ is a parameter to learn. For other hidden states, they are obtained as<br>$$<br>c_{t} = \sum^{N}_{i=1}a^{t}_{i}v^{P}_{i} \\<br>h^{a}_{t} = \mbox{GRU}(h^{a}_{t-1},c_{t})<br>$$</p>
+<p>Another task in this model is passage ranking. To get the passage representation $r^{P}$, attention mechanism is adopted once more:<br>$$<br>s_{j} = v^{T}\mbox{tanh}(W^{P}_{v}v^{P}_{j}+W^{Q}_{v}r^{Q}) \\<br>a_{i} = \exp (s_{i}) / \sum^{N}_{j=1}\exp(s_{j}) \\<br>r^{P} = \sum^{n}_{i=1} a_{i}v^{P}_{i}<br>$$<br>Using $r^{P}$ and $r^{Q}$, the matching score is calculated as<br>$$<br>g = v^{T}_{g}(\mbox{tanh}(W_g[r^{Q},r^{P}]))<br>$$</p>
+<p><img src="evidence-extraction.png" alt="evidence-extraction.png"></p>
+<h3 id="Answer-Synthesis"><a href="#Answer-Synthesis" class="headerlink" title="Answer Synthesis"></a>Answer Synthesis</h3><p>This answer synthesis model is a typical Seq2Seq model with attention. The encoder leverages the information extracted from the evidence extraction model by combining basic word embedding $e^{p}_{t}$ with $f^{s}_{t}$ and $f^{e}_{t}$ which indicates the start and end positions of evidence snippet respectively. The encoded questions and answers are<br>$$<br>h^{P}_{t} = \mbox{BiGRU}(h^{P}_{t-1},[e^{p}_{t},f^{s}_{t},f^{e}_{t}]) \\<br>h^{Q}_{t} = \mbox{BiGRU}(h^{Q}_{t-1},e^{Q}_{t})<br>$$</p>
+<p>The decoder generates the decoding hidden state $d_{t}$ at $t$ by<br>$$<br>d_{t} = \mbox{GRU}(w_{t-1},c_{t-1},d_{t-1}) \\<br>d_{0} = \mbox{tanh}(W_{d} [h^{P}_{1},h^{Q}_{1}] + b)<br>$$<br>where $h^{P}_{1}$ and $h^{Q}_{1}$ are the last backward encoder hidden states with repsect to passage and question. $w_{t}$ is the previous decoding word embedding. The context vector $c_{t}$ is obtained by matching current decoder state $d_{t}$ with each encoder hidden state $h_{t}$ which consists of the $h^{P}_{t}$ and $h^{Q}_{t}$ <strong>(not sure how they mix these two)</strong><br>$$<br>s^{t}_{j} = v^{T}_{a} \mbox{tanh} (W_{a}d_{t-1} + U_{a}h_{j}) \\<br>a^{t}_{i} = \exp (s^{t}_{i}) / \sum^{n}_{j=1}\exp(s^{t}_{j}) \\<br>c_{t} = \sum^{n}_{i=1}a^{t}_{i}h_{i}<br>$$<br>Now, construct readout state $r_t$, put it through a maxout hidden layer and predict decoding word $y_{t}$<br>$$<br>r_t = W_rw_{t-1} + U_{r}c_{t} + V_{r}d_{t} \\<br>m_t = [\mbox{max}(r_{t,2j-1},r_{t,2j})]^T \\<br>p(y_{t}|y_{1},…y_{t-1}) = \mbox{softmax}(W_{o}m_t)<br>$$</p>
+<p><img src="answer-synthesis.png" alt="answer-synthesis.png"></p>
+<h2 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h2><h3 id="Evidence-Snippet-Prediction-1"><a href="#Evidence-Snippet-Prediction-1" class="headerlink" title="Evidence Snippet Prediction"></a>Evidence Snippet Prediction</h3><p>For the evidence snippet predction task, the target is to get the start and end indexes right. This objective can be expressed by cross entropy<br>$$<br>L_{AP} = - \sum^{2}_{t=1} \sum^{N}_{i=1} [ y^{t}_{i} \log a^{t}_{i} + (1 - y^{t}_{i}) \log (1-a^{t}_{i}) ]<br>$$<br>where $y^{t}_{i}$ is a index function.</p>
+<p>And for the page ranking task, the goal is to make the correct passages have higher scores. Similiarly, the objective function is<br>$$<br>\hat{g}_{i} = \exp (g_{i})/\sum^{k}_{j=1}(g_{i}) \\<br>L_{PR} = - \sum^{k}_{i=1} [ y_{i} \log \hat{g}_{i} + (1 - y_{i}) \log (1-\hat{g}_{i}) ]<br>$$<br>Combine two objective functions, We have<br>$$<br>L_{E} = r L_{AP} + (1-r) L_{PR}<br>$$</p>
+<h3 id="Answer-Synthesis-1"><a href="#Answer-Synthesis-1" class="headerlink" title="Answer Synthesis"></a>Answer Synthesis</h3><p>The goal in answer synthesis model is to maximize the likelike of answer $Y$ given the question and related passages $Y$<br>$$<br>L_{S} = -\frac{1}{|D|} \sum_{(X,Y) \in D} \log(Y|X)<br>$$</p>
+<h2 id="Experimental-Setting"><a href="#Experimental-Setting" class="headerlink" title="Experimental Setting"></a>Experimental Setting</h2><h3 id="Evidence-Snippet-Prediction-2"><a href="#Evidence-Snippet-Prediction-2" class="headerlink" title="Evidence Snippet Prediction"></a>Evidence Snippet Prediction</h3><ul>
+<li>Choose the span with the highest ROUGE-L score with the reference answer as the gold span in the training. Only use the data whose ROUGE-L score of chosen text span is higher than 0.7 (86.74% training data).</li>
+<li>300-dimensional uncased pre-trained GloVe embeddings without update during training.</li>
+<li>Use zero vectors to represent all out-of-vocabulary words.</li>
+<li>Hidden vector length is set to 150.</li>
+<li>Dropout rate is 0.1.</li>
+<li>Beam search with beam size of 12.</li>
+<li>Thee weight r is set to 0.8.</li>
+</ul>
+<h3 id="Answer-Synthesis-2"><a href="#Answer-Synthesis-2" class="headerlink" title="Answer Synthesis"></a>Answer Synthesis</h3><ul>
+<li>Choose the best span with highest ROUGE-L score as the evidence, and use the corresponding reference answer as the output. Only use the data whose ROUGE-L score of chosen evidence snippet is higher than 0.5.</li>
+<li>Apply the evidence extraction model to all training data to obtain the extracted span. (almost double the dataset).</li>
+<li>Use an identical vocabulary set for the input and output whose size is 30,000.</li>
+<li>Word embedding size is 300 and updated during training.</li>
+<li>Feature embedding size of start and end positions of the extracted snippet is 50.</li>
+<li>GRU hidden state sizes is 150.</li>
+<li>Beam search with beam size of 12.</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/summary/">summary</a><a href="/tags/seq2seq/">seq2seq</a><a href="/tags/machine-comprehension/">machine comprehension</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://cnyah.com/2018/02/03/S-NET/" data-title="S-NET: Extract and Generate | CN Yah" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2018/01/29/dNDF/"  title="Deep Neural Decision Forests">
+ <strong>NEXT:</strong><br/> 
+ <span>Deep Neural Decision Forests
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Motivation"><span class="toc-number">1.</span> <span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model"><span class="toc-number">2.</span> <span class="toc-text">Model</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction"><span class="toc-number">2.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis"><span class="toc-number">2.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-number">3.</span> <span class="toc-text">Optimization</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction-1"><span class="toc-number">3.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis-1"><span class="toc-number">3.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experimental-Setting"><span class="toc-number">4.</span> <span class="toc-text">Experimental Setting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Evidence-Snippet-Prediction-2"><span class="toc-number">4.1.</span> <span class="toc-text">Evidence Snippet Prediction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Answer-Synthesis-2"><span class="toc-number">4.2.</span> <span class="toc-text">Answer Synthesis</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/CV/" title="CV">CV<sup>1</sup></a></li>
+		
+			<li><a href="/tags/GAN/" title="GAN">GAN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/NLI/" title="NLI">NLI<sup>1</sup></a></li>
+		
+			<li><a href="/tags/NN/" title="NN">NN<sup>1</sup></a></li>
+		
+			<li><a href="/tags/POS-tagging/" title="POS tagging">POS tagging<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RL/" title="RL">RL<sup>1</sup></a></li>
+		
+			<li><a href="/tags/RNN/" title="RNN">RNN<sup>4</sup></a></li>
+		
+			<li><a href="/tags/chatbot/" title="chatbot">chatbot<sup>1</sup></a></li>
+		
+			<li><a href="/tags/collections/" title="collections">collections<sup>3</sup></a></li>
+		
+			<li><a href="/tags/machine-comprehension/" title="machine comprehension">machine comprehension<sup>4</sup></a></li>
+		
+			<li><a href="/tags/notes/" title="notes">notes<sup>1</sup></a></li>
+		
+			<li><a href="/tags/others/" title="others">others<sup>2</sup></a></li>
+		
+			<li><a href="/tags/project/" title="project">project<sup>1</sup></a></li>
+		
+			<li><a href="/tags/seq2seq/" title="seq2seq">seq2seq<sup>9</sup></a></li>
+		
+			<li><a href="/tags/summary/" title="summary">summary<sup>20</sup></a></li>
+		
+			<li><a href="/tags/word-embeddings/" title="word embeddings">word embeddings<sup>2</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		<a href="https://github.com/jingxil" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2018 
+		
+		<a href="http://cnyah.com" target="_blank" title="Jingxi Liang">Jingxi Liang</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-50558696-1', 'cnyah.com');  
+ga('send', 'pageview');
+</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+  </body>
+</html>
+
